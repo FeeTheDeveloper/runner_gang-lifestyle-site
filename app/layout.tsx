@@ -22,7 +22,23 @@ const playfairDisplay = Playfair_Display({
   variable: "--font-playfair"
 });
 
-const metadataBaseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000";
+function getMetadataBase() {
+  const configuredUrl = process.env.NEXT_PUBLIC_BASE_URL?.trim();
+
+  if (!configuredUrl) {
+    return new URL("http://localhost:3000");
+  }
+
+  try {
+    return new URL(configuredUrl);
+  } catch {
+    try {
+      return new URL(`https://${configuredUrl}`);
+    } catch {
+      return new URL("http://localhost:3000");
+    }
+  }
+}
 
 export const metadata: Metadata = {
   title: {
@@ -31,7 +47,7 @@ export const metadata: Metadata = {
   },
   description:
     "Modern Clothing. Urban Luxury. Born in the streets. Refined for the culture.",
-  metadataBase: new URL(metadataBaseUrl),
+  metadataBase: getMetadataBase(),
   openGraph: {
     title: "Runner Gang Lifestyle",
     description:
@@ -60,4 +76,3 @@ export default function RootLayout({
     </html>
   );
 }
-

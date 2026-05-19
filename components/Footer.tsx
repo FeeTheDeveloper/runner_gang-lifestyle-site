@@ -1,5 +1,6 @@
 import BrandMark from "@/components/BrandMark";
-import { Instagram } from "lucide-react";
+import { Instagram, Mail } from "lucide-react";
+import { CONTACT_EMAIL, INSTAGRAM_HANDLE, INSTAGRAM_URL } from "@/lib/site";
 import Link from "next/link";
 
 const footerLinks = [
@@ -9,28 +10,6 @@ const footerLinks = [
   { label: "FAQ", href: "/#faq" },
   { label: "Contact", href: "/#contact" }
 ];
-
-function TikTokIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5" aria-hidden="true">
-      <path
-        d="M14.5 3c.58 1.67 1.83 2.93 3.5 3.5V9a7.1 7.1 0 0 1-3.5-.9v6.77A5.87 5.87 0 1 1 8.63 9v2.78a3.08 3.08 0 1 0 3.08 3.08V3h2.79Z"
-        fill="currentColor"
-      />
-    </svg>
-  );
-}
-
-function XIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5" aria-hidden="true">
-      <path
-        d="M4 4h4.8l4.02 5.37L17.6 4H20l-6.1 7.11L20 20h-4.8l-4.2-5.6L6.2 20H3.8l6.24-7.27L4 4Z"
-        fill="currentColor"
-      />
-    </svg>
-  );
-}
 
 export default function Footer() {
   return (
@@ -57,25 +36,37 @@ export default function Footer() {
 
         <div className="mt-8 flex items-center justify-center gap-4 text-bone/85">
           <a
-            href="#"
+            href={`mailto:${CONTACT_EMAIL}`}
+            className="inline-flex h-11 w-11 items-center justify-center border border-bone/10 bg-smoke/70 hover:border-gold/40 hover:text-gold"
+            aria-label="Email Runner Gang Lifestyle"
+          >
+            <Mail className="h-5 w-5" />
+          </a>
+          <a
+            href={INSTAGRAM_URL}
+            target="_blank"
+            rel="noreferrer"
             className="inline-flex h-11 w-11 items-center justify-center border border-bone/10 bg-smoke/70 hover:border-gold/40 hover:text-gold"
             aria-label="Instagram"
           >
             <Instagram className="h-5 w-5" />
           </a>
+        </div>
+
+        <div className="mt-6 flex flex-col items-center gap-2">
           <a
-            href="#"
-            className="inline-flex h-11 w-11 items-center justify-center border border-bone/10 bg-smoke/70 hover:border-gold/40 hover:text-gold"
-            aria-label="TikTok"
+            href={`mailto:${CONTACT_EMAIL}`}
+            className="font-body text-sm uppercase tracking-[0.24em] text-bone/85 hover:text-gold"
           >
-            <TikTokIcon />
+            {CONTACT_EMAIL}
           </a>
           <a
-            href="#"
-            className="inline-flex h-11 w-11 items-center justify-center border border-bone/10 bg-smoke/70 hover:border-gold/40 hover:text-gold"
-            aria-label="Twitter X"
+            href={INSTAGRAM_URL}
+            target="_blank"
+            rel="noreferrer"
+            className="font-body text-sm uppercase tracking-[0.24em] text-bone/85 hover:text-gold"
           >
-            <XIcon />
+            {INSTAGRAM_HANDLE}
           </a>
         </div>
 
@@ -86,4 +77,3 @@ export default function Footer() {
     </footer>
   );
 }
-

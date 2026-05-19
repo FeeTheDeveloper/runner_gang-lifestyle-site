@@ -1,26 +1,65 @@
-import Image from "next/image";
 import Link from "next/link";
 import { unstable_noStore as noStore } from "next/cache";
-import { getProducts } from "@/lib/printful";
-import { formatCurrency } from "@/lib/storefront";
+import { getProducts, type PrintfulProduct } from "@/lib/printful";
+import { LAUNCH_PRODUCTS, type LaunchProduct } from "@/lib/products";
+import CollectionsClient from "./CollectionsClient";
+
+const FALLBACK_HEX_BY_NAME: Record<string, string> = {
+  Black: "#0A0A0A",
+  White: "#F0EBE3",
+  Navy: "#1B2A4A",
+  Red: "#9B1C1C",
+  Olive: "#3B4A2F"
+};
+
+function normalizePrintfulToLaunch(product: PrintfulProduct): LaunchProduct {
+  const colorMap = new Map<string, { name: string; hex: string; image: string }>();
+
+  for (const variant of product.variants) {
+    if (!colorMap.has(variant.color)) {
+      colorMap.set(variant.color, {
+        name: variant.color,
+        hex: FALLBACK_HEX_BY_NAME[variant.color] ?? "#1E1E1E",
+        image: variant.image || product.thumbnail_url
+      });
+    }
+  }
+
+  const sizes = Array.from(new Set(product.variants.map((variant) => variant.size)));
+  const colors = Array.from(colorMap.values());
+  const firstPrice = product.variants[0]?.price ?? 45;
+  const design = product.name.toLowerCase().includes("world") ? "world" : "coastal";
+
+  return {
+    id: product.id,
+    name: product.name,
+    description: product.description ?? "Runner Gang Lifestyle drop.",
+    price: firstPrice,
+    category: "tee",
+    design,
+    thumbnail: product.thumbnail_url,
+    colors,
+    sizes,
+    badge: "LIVE NOW",
+    featured: true
+  };
+}
 
 export default async function Collections() {
   noStore();
 
-  let products = [] as Awaited<ReturnType<typeof getProducts>>;
-  let unavailableMessage: string | null = null;
+  let printfulProducts: PrintfulProduct[] = [];
 
   try {
-    products = await getProducts();
-  } catch (error) {
-    unavailableMessage =
-      error instanceof Error
-        ? error.message
-        : "Live Printful products are not available yet.";
+    printfulProducts = await getProducts();
+  } catch {
+    printfulProducts = [];
   }
 
-  const featuredProducts = products.slice(0, 3);
-  const hasConnectionIssue = Boolean(unavailableMessage);
+  const products: ReadonlyArray<LaunchProduct> =
+    printfulProducts.length > 0
+      ? printfulProducts.map(normalizePrintfulToLaunch).slice(0, 6)
+      : LAUNCH_PRODUCTS;
 
   return (
     <section id="collections" className="relative">
@@ -31,8 +70,8 @@ export default async function Collections() {
             <span className="eyebrow">New Drops</span>
             <h2 className="section-heading">The Collection</h2>
             <p className="mt-5 body-copy max-w-xl">
-              Live Printful products sync into this storefront and flow straight into
-              Stripe checkout and Printful fulfillment.
+              Two designs. Five colorways. Pick your tee - born in the streets,
+              worn across the world.
             </p>
           </div>
           <Link
@@ -43,69 +82,7 @@ export default async function Collections() {
           </Link>
         </div>
 
-        {featuredProducts.length > 0 ? (
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {featuredProducts.map((product) => {
-              const startingPrice = product.variants.length
-                ? Math.min(...product.variants.map((variant) => variant.price))
-                : null;
-
-              return (
-                <article
-                  key={product.id}
-                  className="group relative overflow-hidden border border-bone/10 bg-smoke p-4 transition-transform duration-300 hover:-translate-y-2 hover:shadow-ember"
-                >
-                  <Link href={`/products/${product.id}`} className="block">
-                    <div className="relative aspect-[3/4] overflow-hidden bg-obsidian">
-                      <Image
-                        src={product.thumbnail_url}
-                        alt={product.name}
-                        fill
-                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                        className="object-cover transition-transform duration-700 group-hover:scale-105"
-                        unoptimized={product.thumbnail_url.startsWith("http")}
-                      />
-                      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,10,10,0)_0%,rgba(10,10,10,0.85)_100%)]" />
-                      <div className="absolute inset-0 bg-ember/20 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-                      <div className="absolute inset-x-4 bottom-4">
-                        <span className="luxury-button w-full border-gold/40 bg-obsidian/90 text-bone">
-                          Shop Now
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="pt-5">
-                      <h3 className="font-display text-[34px] uppercase leading-none tracking-[0.08em] text-bone">
-                        {product.name}
-                      </h3>
-                      <p className="mt-3 font-body text-sm uppercase tracking-[0.28em] text-bone/80">
-                        {startingPrice ? `From ${formatCurrency(startingPrice)}` : "See variants"}
-                      </p>
-                    </div>
-                  </Link>
-                </article>
-              );
-            })}
-          </div>
-        ) : (
-          <div className="border border-gold/20 bg-smoke/70 p-8 sm:p-10">
-            <p className="font-display text-4xl uppercase tracking-[0.12em] text-bone">
-              {hasConnectionIssue
-                ? "Printful connection issue"
-                : "No synced products yet"}
-            </p>
-            <p className="mt-4 body-copy max-w-2xl">
-              {hasConnectionIssue
-                ? "This storefront reached Printful, but the product sync request failed. Update the API token or store permissions, then refresh the page."
-                : "This storefront is connected, but Printful did not return any synced store products yet. Add products in Printful and make sure they are available to the same API token this app uses."}
-            </p>
-            {unavailableMessage ? (
-              <p className="mt-4 font-body text-xs uppercase tracking-[0.2em] text-ash">
-                {unavailableMessage}
-              </p>
-            ) : null}
-          </div>
-        )}
+        <CollectionsClient products={products} />
       </div>
     </section>
   );

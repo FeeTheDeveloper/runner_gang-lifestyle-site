@@ -5,6 +5,8 @@ import Image from "next/image";
 import { Minus, Plus, ShoppingBag, X } from "lucide-react";
 import { useEffect } from "react";
 import { useCart } from "@/context/CartContext";
+import { isCheckoutEligibleItem } from "@/lib/checkout";
+import { CONTACT_EMAIL } from "@/lib/site";
 import { formatCurrency } from "@/lib/storefront";
 
 export default function CartDrawer() {
@@ -19,6 +21,7 @@ export default function CartDrawer() {
     removeItem,
     updateQuantity
   } = useCart();
+  const hasUnsupportedItems = items.some((item) => !isCheckoutEligibleItem(item));
 
   useEffect(() => {
     if (!isOpen) {
@@ -182,10 +185,17 @@ export default function CartDrawer() {
                   <button
                     type="button"
                     onClick={openCheckout}
-                    className="luxury-button mt-6 w-full border-ember bg-ember text-bone hover:border-sunset hover:bg-sunset"
+                    disabled={hasUnsupportedItems}
+                    className="luxury-button mt-6 w-full border-ember bg-ember text-bone hover:border-sunset hover:bg-sunset disabled:cursor-not-allowed disabled:opacity-60"
                   >
-                    Checkout
+                    {hasUnsupportedItems ? "Live Checkout Unavailable" : "Checkout"}
                   </button>
+                  {hasUnsupportedItems ? (
+                    <p className="mt-4 font-body text-xs uppercase tracking-[0.18em] text-ash">
+                      Launch preview items are not connected to live fulfillment yet.
+                      Email {CONTACT_EMAIL} to place this order manually.
+                    </p>
+                  ) : null}
                 </div>
               </>
             )}
@@ -195,4 +205,3 @@ export default function CartDrawer() {
     </AnimatePresence>
   );
 }
-

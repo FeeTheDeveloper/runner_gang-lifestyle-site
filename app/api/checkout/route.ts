@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { isCheckoutEligibleItem } from "@/lib/checkout";
 import { getStripeClient } from "@/lib/stripe";
 import { ESTIMATED_SHIPPING } from "@/lib/storefront";
 
@@ -32,6 +33,16 @@ export async function POST(request: Request) {
     if (!Array.isArray(body.items) || body.items.length === 0) {
       return NextResponse.json(
         { error: "At least one item is required to create checkout." },
+        { status: 400 }
+      );
+    }
+
+    if (body.items.some((item) => !isCheckoutEligibleItem(item))) {
+      return NextResponse.json(
+        {
+          error:
+            "One or more items are launch previews and are not connected to live checkout yet."
+        },
         { status: 400 }
       );
     }
@@ -77,4 +88,3 @@ export async function POST(request: Request) {
     );
   }
 }
-

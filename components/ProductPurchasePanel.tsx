@@ -56,7 +56,8 @@ export default function ProductPurchasePanel({
       color: selectedVariant.color,
       price: selectedVariant.price,
       quantity,
-      image: selectedVariant.image || product.thumbnail_url
+      image: selectedVariant.image || product.thumbnail_url,
+      catalogSource: "printful"
     });
 
     openCheckout();
