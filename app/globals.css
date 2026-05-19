@@ -1,0 +1,113 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-obsidian: #0a0a0a;
+  --color-ember: #c45c1a;
+  --color-sunset: #e8833a;
+  --color-dusk: #8b4a6b;
+  --color-smoke: #1e1e1e;
+  --color-ash: #6b6b6b;
+  --color-bone: #f0ebe3;
+  --color-gold: #d4a853;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  background-color: var(--color-obsidian);
+  background-image:
+    radial-gradient(circle at 15% 15%, rgba(232, 131, 58, 0.14), transparent 24%),
+    radial-gradient(circle at 85% 10%, rgba(139, 74, 107, 0.15), transparent 18%),
+    linear-gradient(180deg, rgba(10, 10, 10, 1) 0%, rgba(10, 10, 10, 0.98) 100%);
+  color: var(--color-bone);
+  font-family: var(--font-dm-sans), sans-serif;
+}
+
+* {
+  border-color: rgba(240, 235, 227, 0.1);
+}
+
+::selection {
+  background: rgba(196, 92, 26, 0.45);
+  color: var(--color-bone);
+}
+
+@layer base {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-bebas), sans-serif;
+    font-weight: 400;
+    letter-spacing: 0.08em;
+  }
+
+  p {
+    color: rgba(240, 235, 227, 0.82);
+  }
+
+  a,
+  button {
+    transition:
+      color 200ms ease,
+      background-color 200ms ease,
+      border-color 200ms ease,
+      transform 200ms ease,
+      opacity 200ms ease,
+      box-shadow 200ms ease;
+  }
+
+  button:disabled {
+    cursor: not-allowed;
+    opacity: 0.58;
+  }
+
+  input,
+  select,
+  textarea {
+    border-radius: 0;
+  }
+}
+
+@layer components {
+  .site-shell {
+    @apply relative isolate overflow-x-hidden bg-obsidian;
+  }
+
+  .section-shell {
+    @apply relative mx-auto w-full max-w-7xl px-6 py-20 sm:px-8 md:py-24 lg:px-12;
+  }
+
+  .eyebrow {
+    @apply mb-4 block font-body text-xs uppercase tracking-[0.45em] text-gold;
+  }
+
+  .section-heading {
+    @apply font-display text-5xl uppercase leading-none tracking-[0.12em] text-bone sm:text-6xl;
+  }
+
+  .body-copy {
+    @apply font-body text-base leading-7 sm:text-lg;
+    color: rgba(240, 235, 227, 0.82);
+  }
+
+  .luxury-button {
+    @apply inline-flex items-center justify-center rounded-sm border px-6 py-3 font-body text-sm uppercase tracking-[0.28em];
+  }
+
+  .luxury-input {
+    @apply w-full border bg-obsidian px-4 py-3 font-body text-sm text-bone placeholder:text-ash focus:outline-none;
+    border-color: rgba(240, 235, 227, 0.1);
+  }
+
+  .luxury-input:focus {
+    border-color: rgba(212, 168, 83, 0.5);
+  }
+}

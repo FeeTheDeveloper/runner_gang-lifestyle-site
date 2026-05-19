@@ -1,0 +1,21 @@
+<svg width="1000" height="1400" viewBox="0 0 1000 1400" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1000" height="1400" fill="#0A0A0A"/>
+  <rect x="40" y="40" width="920" height="1320" fill="#141414" stroke="#D4A853" stroke-opacity="0.18" stroke-width="2"/>
+  <rect x="110" y="120" width="780" height="1160" fill="url(#paint0_linear_0_1)"/>
+  <path d="M344 1180C344 1040 438 930 540 930C642 930 736 1040 736 1180H344Z" fill="#0A0A0A" fill-opacity="0.64"/>
+  <circle cx="540" cy="648" r="152" fill="#C45C1A" fill-opacity="0.22"/>
+  <path d="M422 730C422 626 482 552 566 552C650 552 708 626 708 730V960H422V730Z" fill="#1E1E1E" stroke="#F0EBE3" stroke-opacity="0.18" stroke-width="2"/>
+  <path d="M496 540C496 468 544 420 610 420C676 420 722 468 722 540C722 612 676 672 610 672C544 672 496 612 496 540Z" fill="#2A2A2A"/>
+  <path d="M318 780L434 676V960H318V780Z" fill="#1E1E1E"/>
+  <path d="M702 676L820 780V960H702V676Z" fill="#1E1E1E"/>
+  <path d="M182 1160H818" stroke="#D4A853" stroke-width="4" stroke-dasharray="12 16"/>
+  <text x="500" y="1270" text-anchor="middle" fill="#F0EBE3" font-family="Arial, sans-serif" font-size="46" letter-spacing="14">URBAN LUXURY</text>
+  <defs>
+    <linearGradient id="paint0_linear_0_1" x1="500" y1="120" x2="500" y2="1280" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#8B4A6B"/>
+      <stop offset="0.38" stop-color="#E8833A"/>
+      <stop offset="1" stop-color="#0A0A0A"/>
+    </linearGradient>
+  </defs>
+</svg>
+

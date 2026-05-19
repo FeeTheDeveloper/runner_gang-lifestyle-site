@@ -1,0 +1,20 @@
+<svg width="1920" height="1080" viewBox="0 0 1920 1080" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1920" height="1080" fill="#0A0A0A"/>
+  <rect x="60" y="60" width="1800" height="960" fill="url(#paint0_linear_0_1)" stroke="#D4A853" stroke-opacity="0.24" stroke-width="3"/>
+  <path d="M0 824L224 712L378 756L572 584L816 648L984 508L1186 610L1380 420L1632 548L1920 382V1080H0V824Z" fill="#0A0A0A" fill-opacity="0.74"/>
+  <path d="M176 804L354 620H608L760 512H1048L1226 368H1510L1694 500L1812 804H176Z" fill="#111111"/>
+  <circle cx="1490" cy="266" r="126" fill="#E8833A" fill-opacity="0.42"/>
+  <circle cx="1490" cy="266" r="182" fill="#8B4A6B" fill-opacity="0.18"/>
+  <rect x="230" y="220" width="520" height="8" fill="#D4A853"/>
+  <rect x="230" y="250" width="700" height="8" fill="#F0EBE3" fill-opacity="0.56"/>
+  <text x="230" y="370" fill="#F0EBE3" font-family="Arial, sans-serif" font-size="110" letter-spacing="22">RUNNER GANG</text>
+  <text x="230" y="470" fill="#C45C1A" font-family="Arial, sans-serif" font-size="56" letter-spacing="18">LIFESTYLE</text>
+  <defs>
+    <linearGradient id="paint0_linear_0_1" x1="960" y1="60" x2="960" y2="1020" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#8B4A6B"/>
+      <stop offset="0.35" stop-color="#E8833A"/>
+      <stop offset="0.72" stop-color="#C45C1A"/>
+      <stop offset="1" stop-color="#0A0A0A"/>
+    </linearGradient>
+  </defs>
+</svg>
