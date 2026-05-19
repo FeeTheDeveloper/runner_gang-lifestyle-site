@@ -1,4 +1,5 @@
 import axios from "axios";
+import type { AxiosError } from "axios";
 import { parsePrice } from "@/lib/storefront";
 
 export interface PrintfulVariant {
@@ -54,6 +55,40 @@ function assertPrintfulConfig() {
   if (!process.env.PRINTFUL_API_KEY) {
     throw new Error("Missing PRINTFUL_API_KEY environment variable.");
   }
+}
+
+function getPrintfulErrorMessage(error: unknown) {
+  if (axios.isAxiosError(error)) {
+    const axiosError = error as AxiosError<{
+      error?: {
+        message?: string;
+      };
+    }>;
+    const status = axiosError.response?.status;
+    const apiMessage = axiosError.response?.data?.error?.message;
+
+    if (status === 401) {
+      return "Printful rejected the API key. Update PRINTFUL_API_KEY with a valid token from Printful Settings > API.";
+    }
+
+    if (status === 403) {
+      return "Printful accepted the request but denied access. Confirm this token has permission to read store products.";
+    }
+
+    if (status === 404) {
+      return "The requested Printful product could not be found for this store.";
+    }
+
+    if (apiMessage) {
+      return apiMessage;
+    }
+  }
+
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  return "Printful request failed.";
 }
 
 function inferVariantDetails(name: string) {
@@ -139,30 +174,42 @@ function normalizeProduct(rawResult: Record<string, unknown>) {
 export async function getProduct(id: string) {
   assertPrintfulConfig();
 
-  const response = await printfulClient.get<{ result: Record<string, unknown> }>(
-    `/store/products/${id}`
-  );
+  try {
+    const response = await printfulClient.get<{ result: Record<string, unknown> }>(
+      `/store/products/${id}`
+    );
 
-  return normalizeProduct(response.data.result);
+    return normalizeProduct(response.data.result);
+  } catch (error) {
+    throw new Error(getPrintfulErrorMessage(error));
+  }
 }
 
 export async function getProducts() {
   assertPrintfulConfig();
 
-  const response = await printfulClient.get<PrintfulListResponse>("/store/products");
-  const productIds = response.data.result.map((product) => String(product.id));
-  const products = await Promise.all(productIds.map((id) => getProduct(id)));
+  try {
+    const response = await printfulClient.get<PrintfulListResponse>("/store/products");
+    const productIds = response.data.result.map((product) => String(product.id));
+    const products = await Promise.all(productIds.map((id) => getProduct(id)));
 
-  return products;
+    return products;
+  } catch (error) {
+    throw new Error(getPrintfulErrorMessage(error));
+  }
 }
 
 export async function createOrder(orderData: PrintfulOrder) {
   assertPrintfulConfig();
 
-  const response = await printfulClient.post("/orders?confirm=1", {
-    ...orderData,
-    confirm: true
-  });
+  try {
+    const response = await printfulClient.post("/orders?confirm=1", {
+      ...orderData,
+      confirm: true
+    });
 
-  return response.data;
+    return response.data;
+  } catch (error) {
+    throw new Error(getPrintfulErrorMessage(error));
+  }
 }

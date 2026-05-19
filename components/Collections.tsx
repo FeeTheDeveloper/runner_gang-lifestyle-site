@@ -20,6 +20,7 @@ export default async function Collections() {
   }
 
   const featuredProducts = products.slice(0, 3);
+  const hasConnectionIssue = Boolean(unavailableMessage);
 
   return (
     <section id="collections" className="relative">
@@ -89,12 +90,14 @@ export default async function Collections() {
         ) : (
           <div className="border border-gold/20 bg-smoke/70 p-8 sm:p-10">
             <p className="font-display text-4xl uppercase tracking-[0.12em] text-bone">
-              Printful storefront is ready
+              {hasConnectionIssue
+                ? "Printful connection issue"
+                : "No synced products yet"}
             </p>
             <p className="mt-4 body-copy max-w-2xl">
-              Connect your Printful API key to load live products here. The UI,
-              checkout flow, and webhook-based fulfillment pipeline are already in
-              place.
+              {hasConnectionIssue
+                ? "This storefront reached Printful, but the product sync request failed. Update the API token or store permissions, then refresh the page."
+                : "This storefront is connected, but Printful did not return any synced store products yet. Add products in Printful and make sure they are available to the same API token this app uses."}
             </p>
             {unavailableMessage ? (
               <p className="mt-4 font-body text-xs uppercase tracking-[0.2em] text-ash">
@@ -107,4 +110,3 @@ export default async function Collections() {
     </section>
   );
 }
-

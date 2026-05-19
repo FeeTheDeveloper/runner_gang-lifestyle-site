@@ -79,12 +79,14 @@ export default async function ProductsPage() {
         ) : (
           <div className="mt-14 border border-gold/20 bg-smoke/70 p-8 sm:p-10">
             <p className="font-display text-4xl uppercase tracking-[0.12em] text-bone">
-              Products will appear here after Printful is connected
+              {unavailableMessage
+                ? "Printful connection issue"
+                : "No synced products found"}
             </p>
             <p className="mt-4 body-copy max-w-2xl">
-              The storefront pages, cart system, Stripe checkout, and Printful
-              fulfillment webhook are all in place. Add your live API credentials to
-              start syncing products.
+              {unavailableMessage
+                ? "The storefront is online, but the request to Printful failed. Update the API token or permissions used by this app, then refresh."
+                : "The storefront is online, but Printful returned zero synced store products for the current API token. Add products in Printful and confirm they belong to the same store this token can access."}
             </p>
             {unavailableMessage ? (
               <p className="mt-4 font-body text-xs uppercase tracking-[0.2em] text-ash">
@@ -98,4 +100,3 @@ export default async function ProductsPage() {
     </main>
   );
 }
-
