@@ -7,6 +7,7 @@ import Hero from "@/components/Hero";
 import LifestyleBanner from "@/components/LifestyleBanner";
 import MarqueeStrip from "@/components/MarqueeStrip";
 import Navbar from "@/components/Navbar";
+import TshirtShowcase from "@/components/TshirtShowcase";
 
 export default function HomePage() {
   return (
@@ -15,6 +16,7 @@ export default function HomePage() {
       <Hero />
       <MarqueeStrip />
       <Collections />
+      <TshirtShowcase />
       <BrandStatement />
       <CultureSection />
       <LifestyleBanner />

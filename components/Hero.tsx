@@ -101,6 +101,16 @@ export default function Hero() {
               Our Story
             </Link>
           </motion.div>
+
+          <motion.div variants={itemVariants} className="mt-8">
+            <Link
+              href="/#collections"
+              className="inline-flex items-center gap-2 rounded-full bg-ember px-5 py-2 font-display text-sm uppercase tracking-[0.32em] text-bone shadow-ember hover:bg-sunset"
+            >
+              <span aria-hidden>🔥</span>
+              <span>Launch Drop — 10 Colorways Now Live</span>
+            </Link>
+          </motion.div>
         </motion.div>
       </div>
     </section>

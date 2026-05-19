@@ -26,7 +26,10 @@ const config: Config = {
         smoke: "var(--color-smoke)",
         ash: "var(--color-ash)",
         bone: "var(--color-bone)",
-        gold: "var(--color-gold)"
+        gold: "var(--color-gold)",
+        navy: "#1B2A4A",
+        "red-gang": "#9B1C1C",
+        "olive-gang": "#3B4A2F"
       },
       fontFamily: {
         display: ["var(--font-bebas)", "sans-serif"],
@@ -40,6 +43,16 @@ const config: Config = {
       backgroundImage: {
         "obsidian-fade": "linear-gradient(180deg, rgba(10, 10, 10, 0.95) 0%, rgba(10, 10, 10, 0) 100%)",
         "ember-strike": "linear-gradient(90deg, rgba(196, 92, 26, 1) 0%, rgba(232, 131, 58, 0.65) 50%, rgba(10, 10, 10, 0) 100%)"
+      },
+      animation: {
+        "swatch-pulse": "swatchPulse 0.2s ease-out"
+      },
+      keyframes: {
+        swatchPulse: {
+          "0%": { transform: "scale(1)" },
+          "50%": { transform: "scale(1.18)" },
+          "100%": { transform: "scale(1)" }
+        }
       }
     }
   },
@@ -47,4 +60,3 @@ const config: Config = {
 };
 
 export default config;
-
