@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import { getStripeClient } from "@/lib/stripe";
-import { priceSupplyOrder, PRINT_PRICING, type SupplyOrderLine } from "@/lib/supply";
+import {
+  PRINT_PRICING,
+  priceSupplyOrder,
+  type SupplyOrderLine
+} from "@/lib/supply";
 
 export const runtime = "nodejs";
 
@@ -33,10 +37,12 @@ export async function POST(request: Request) {
     }
 
     if (!body.customerEmail || !/^\S+@\S+\.\S+$/.test(body.customerEmail)) {
-      return NextResponse.json({ error: "A valid email is required." }, { status: 400 });
+      return NextResponse.json(
+        { error: "A valid email is required." },
+        { status: 400 }
+      );
     }
 
-    // Authoritative repricing — client-submitted totals are never used.
     const order = priceSupplyOrder(body.lines);
 
     if (order.errors.length > 0) {
@@ -44,24 +50,28 @@ export async function POST(request: Request) {
     }
 
     if (order.lines.length === 0) {
-      return NextResponse.json({ error: "No valid order lines submitted." }, { status: 400 });
+      return NextResponse.json(
+        { error: "No valid order lines submitted." },
+        { status: 400 }
+      );
     }
 
     const origin = getOrigin(request);
 
     const lineItems = order.lines.map((line) => {
       const sizeBreakdown = Object.entries(line.sizes)
-        .map(([size, qty]) => `${size}×${qty}`)
+        .map(([size, qty]) => `${size}x${qty}`)
         .join(", ");
+      const effectiveUnit = line.lineTotal / line.totalQty;
 
       return {
         quantity: line.totalQty,
         price_data: {
           currency: "usd",
-          unit_amount: Math.round((line.unitPrice + line.printPerUnit) * 100),
+          unit_amount: Math.round(effectiveUnit * 100),
           product_data: {
-            name: `RG Supply — ${line.product.name} (${line.colorName})`,
-            description: `${sizeBreakdown} • ${PRINT_PRICING[line.printOption].label} • $${line.unitPrice.toFixed(2)}/unit tier`
+            name: `RG Supply - ${line.product.name} (${line.colorName})`,
+            description: `${sizeBreakdown} | ${PRINT_PRICING[line.printOption].label} | $${line.unitPrice.toFixed(2)}/unit tier`
           }
         }
       };
@@ -75,7 +85,7 @@ export async function POST(request: Request) {
           unit_amount: Math.round(order.shipping * 100),
           product_data: {
             name: "Wholesale Shipping",
-            description: `${order.totalUnits} units • Local DFW pickup available (contact us post-order for shipping refund)`
+            description: `${order.totalUnits} units | Free shipping unlocks at 144+ units`
           }
         }
       });
