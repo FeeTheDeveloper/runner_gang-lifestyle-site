@@ -35,6 +35,8 @@ const initialFormState: ShippingFormState = {
   zip: "",
   country: "US"
 };
+const MOBILE_EXPRESS_BUTTON_HEIGHT = 52;
+const DESKTOP_EXPRESS_BUTTON_HEIGHT = 48;
 
 function hasAvailabilityFlag(value: unknown): value is { available?: boolean } {
   return typeof value === "object" && value !== null && "available" in value;
@@ -101,6 +103,24 @@ function PaymentForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isExpressCheckoutAvailable, setIsExpressCheckoutAvailable] = useState(true);
+  const [isMobileViewport, setIsMobileViewport] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const mediaQuery = window.matchMedia("(max-width: 640px)");
+    const updateViewport = () => setIsMobileViewport(mediaQuery.matches);
+
+    updateViewport();
+
+    mediaQuery.addEventListener("change", updateViewport);
+
+    return () => {
+      mediaQuery.removeEventListener("change", updateViewport);
+    };
+  }, []);
 
   const returnUrl =
     typeof window === "undefined" ? "/order-confirmed" : `${window.location.origin}/order-confirmed`;
@@ -191,10 +211,12 @@ function PaymentForm() {
                 );
               }}
               options={{
-                buttonHeight: 48,
+                buttonHeight: isMobileViewport
+                  ? MOBILE_EXPRESS_BUTTON_HEIGHT
+                  : DESKTOP_EXPRESS_BUTTON_HEIGHT,
                 layout: {
                   maxColumns: 1,
-                  maxRows: 2,
+                  maxRows: isMobileViewport ? 3 : 2,
                   overflow: "auto"
                 },
                 paymentMethods: {
@@ -351,56 +373,63 @@ export default function CheckoutModal() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 24 }}
             transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
-            className="fixed inset-0 z-[100] flex items-center justify-center px-4 py-8"
+            className="fixed inset-0 z-[100] touch-pan-y px-4 py-4 sm:py-8"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="checkout-modal-title"
           >
-            <div className="relative w-full max-w-lg border border-bone/10 bg-smoke shadow-gold">
-              <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-ember via-gold to-transparent" />
-              <button
-                type="button"
-                onClick={closeCheckout}
-                className="absolute right-4 top-4 inline-flex h-10 w-10 items-center justify-center border border-bone/10 bg-obsidian/80 text-bone"
-                aria-label="Close checkout"
-              >
-                <X className="h-4 w-4" />
-              </button>
+            <div className="flex min-h-full items-start justify-center sm:items-center">
+              <div className="relative flex max-h-[calc(100vh-2rem)] max-h-[calc(100dvh-2rem)] w-full max-w-lg flex-col overflow-hidden border border-bone/10 bg-smoke shadow-gold sm:max-h-[calc(100vh-4rem)] sm:max-h-[calc(100dvh-4rem)]">
+                <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-ember via-gold to-transparent" />
+                <button
+                  type="button"
+                  onClick={closeCheckout}
+                  className="absolute right-4 top-4 inline-flex h-10 w-10 items-center justify-center border border-bone/10 bg-obsidian/80 text-bone"
+                  aria-label="Close checkout"
+                >
+                  <X className="h-4 w-4" />
+                </button>
 
-              <div className="p-6 sm:p-8">
-                <div className="pr-12">
-                  <p className="font-body text-xs uppercase tracking-[0.36em] text-gold">
-                    Secure Checkout
-                  </p>
-                  <h2 className="mt-3 font-display text-5xl uppercase leading-none tracking-[0.14em] text-bone">
-                    {step === 1 ? "Step 1 / Shipping" : "Step 2 / Payment"}
-                  </h2>
-                  <p className="mt-4 font-body text-sm uppercase tracking-[0.18em] text-ash">
-                    Total due today: {formatCurrency(totalEstimate)}
-                  </p>
-                </div>
-
-                {items.length === 0 ? (
-                  <div className="mt-8 border border-bone/10 bg-obsidian/70 p-6 text-center">
-                    <p className="font-body text-sm uppercase tracking-[0.18em] text-ash">
-                      Your cart is empty. Add a live product to continue.
+                <div className="overflow-y-auto overscroll-contain p-6 sm:p-8">
+                  <div className="pr-12">
+                    <p className="font-body text-xs uppercase tracking-[0.36em] text-gold">
+                      Secure Checkout
+                    </p>
+                    <h2
+                      id="checkout-modal-title"
+                      className="mt-3 font-display text-5xl uppercase leading-none tracking-[0.14em] text-bone"
+                    >
+                      {step === 1 ? "Step 1 / Shipping" : "Step 2 / Payment"}
+                    </h2>
+                    <p className="mt-4 font-body text-sm uppercase tracking-[0.18em] text-ash">
+                      Total due today: {formatCurrency(totalEstimate)}
                     </p>
                   </div>
-                ) : step === 1 ? (
-                  <div className="mt-8 space-y-4">
-                    <div>
-                      <label className="mb-2 block font-body text-[11px] uppercase tracking-[0.3em] text-gold">
-                        Full Name
-                      </label>
-                      <input
-                        value={formState.fullName}
-                        onChange={(event) => updateField("fullName", event.target.value)}
-                        className="luxury-input"
-                        placeholder="Runner Gang Customer"
-                      />
-                      {errors.fullName ? (
-                        <p className="mt-2 text-xs uppercase tracking-[0.18em] text-ember">
-                          {errors.fullName}
-                        </p>
-                      ) : null}
+
+                  {items.length === 0 ? (
+                    <div className="mt-8 border border-bone/10 bg-obsidian/70 p-6 text-center">
+                      <p className="font-body text-sm uppercase tracking-[0.18em] text-ash">
+                        Your cart is empty. Add a live product to continue.
+                      </p>
                     </div>
+                  ) : step === 1 ? (
+                    <div className="mt-8 space-y-4">
+                      <div>
+                        <label className="mb-2 block font-body text-[11px] uppercase tracking-[0.3em] text-gold">
+                          Full Name
+                        </label>
+                        <input
+                          value={formState.fullName}
+                          onChange={(event) => updateField("fullName", event.target.value)}
+                          className="luxury-input"
+                          placeholder="Runner Gang Customer"
+                        />
+                        {errors.fullName ? (
+                          <p className="mt-2 text-xs uppercase tracking-[0.18em] text-ember">
+                            {errors.fullName}
+                          </p>
+                        ) : null}
+                      </div>
 
                     <div>
                       <label className="mb-2 block font-body text-[11px] uppercase tracking-[0.3em] text-gold">
@@ -555,8 +584,9 @@ export default function CheckoutModal() {
                         Waiting on Stripe checkout initialization.
                       </p>
                     )}
-                  </div>
-                )}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </motion.div>
