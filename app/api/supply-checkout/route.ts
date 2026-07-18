@@ -7,13 +7,14 @@ import {
 import {
   PRINT_PRICING,
   priceSupplyOrder,
+  type PricedSupplyLine,
   type SupplyOrderLine
 } from "@/lib/supply";
 
 export const runtime = "nodejs";
 const STRIPE_METADATA_VALUE_MAX_LENGTH = 500;
 
-function serializeOrderLinesForMetadata(lines: SupplyOrderLine[]) {
+function serializeOrderLinesForMetadata(lines: PricedSupplyLine[]) {
   const serializedLines = lines.map((line) => ({
     productId: line.product.id,
     color: line.colorName,
