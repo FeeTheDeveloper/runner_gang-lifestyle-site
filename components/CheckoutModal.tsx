@@ -373,7 +373,7 @@ export default function CheckoutModal() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 24 }}
             transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
-            className="fixed inset-0 z-[100] overflow-y-auto overscroll-contain touch-pan-y px-4 py-4 sm:py-8"
+            className="fixed inset-0 z-[100] overscroll-contain touch-pan-y px-4 py-4 sm:py-8"
             role="dialog"
             aria-modal="true"
             aria-labelledby="checkout-modal-title"

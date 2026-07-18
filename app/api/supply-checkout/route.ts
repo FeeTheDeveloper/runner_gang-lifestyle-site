@@ -23,18 +23,23 @@ function serializeOrderLinesForMetadata(lines: PricedSupplyLine[]) {
     qty: line.totalQty,
     unit: line.unitPrice
   }));
+  let truncated = false;
 
   while (serializedLines.length > 0) {
     const value = JSON.stringify(serializedLines);
 
     if (value.length <= STRIPE_METADATA_VALUE_MAX_LENGTH) {
-      return value;
+      return { value, truncated };
     }
 
+    truncated = true;
     serializedLines.pop();
   }
 
-  return "[]";
+  return {
+    value: "[]",
+    truncated: lines.length > 0
+  };
 }
 
 type SupplyCheckoutBody = {
@@ -121,12 +126,14 @@ export async function POST(request: Request) {
       });
     }
 
+    const serializedOrderLines = serializeOrderLinesForMetadata(order.lines);
     const metadata = {
       channel: "rg-supply",
       companyName: body.companyName ?? "",
       totalUnits: String(order.totalUnits),
       connectedAccountId: connectedAccountId ?? "platform",
-      orderLines: serializeOrderLinesForMetadata(order.lines)
+      orderLines: serializedOrderLines.value,
+      orderLinesTruncated: serializedOrderLines.truncated ? "true" : "false"
     };
 
     const session = await stripe.checkout.sessions.create({
