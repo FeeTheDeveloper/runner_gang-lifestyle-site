@@ -54,9 +54,9 @@ export default async function OrderConfirmedPage({
             Order Confirmed
           </h1>
           <p className="mt-5 body-copy mx-auto max-w-2xl">
-            Your order is being prepared for fulfillment. Once the Stripe payment
-            completes, the webhook submits your order directly to Printful for
-            production and shipping.
+            Your Stripe payment has been captured successfully. Our team will
+            process your order and send fulfillment updates to the email used at
+            checkout.
           </p>
 
           {lineItems.length > 0 ? (

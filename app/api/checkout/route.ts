@@ -10,7 +10,7 @@ type CheckoutItem = {
   quantity: number;
   name: string;
   price: number;
-  catalogSource?: "printful" | "launch";
+  catalogSource?: "launch";
 };
 
 type CheckoutRequestBody = {
@@ -41,8 +41,7 @@ export async function POST(request: Request) {
     if (body.items.some((item) => !isCheckoutEligibleItem(item))) {
       return NextResponse.json(
         {
-          error:
-            "One or more items are launch previews and are not connected to live checkout yet."
+          error: "One or more items are missing required checkout details."
         },
         { status: 400 }
       );

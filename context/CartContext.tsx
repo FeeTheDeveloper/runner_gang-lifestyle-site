@@ -12,7 +12,7 @@ export type CartItem = {
   price: number;
   quantity: number;
   image: string;
-  catalogSource?: "printful" | "launch";
+  catalogSource?: "launch";
 };
 
 type CartState = {
