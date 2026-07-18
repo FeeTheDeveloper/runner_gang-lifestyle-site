@@ -29,9 +29,10 @@ export default async function ProductsPage() {
           <span className="eyebrow">Launch Storefront</span>
           <h1 className="section-heading">All Products</h1>
           <p className="mt-5 body-copy">
-            The launch collection - Coastal and World Tour tees in five colorways
-            each. Live Printful products will replace these preview cards
-            automatically once the storefront sync is connected.
+            The Runner Gang Signature t-shirt in four colorways - available in
+            S, M, L, and XL for $24.99 plus shipping and handling. Live Printful
+            products will replace these cards automatically once the storefront
+            sync is connected.
           </p>
         </div>
 

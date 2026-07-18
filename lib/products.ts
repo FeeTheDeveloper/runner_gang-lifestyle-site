@@ -20,42 +20,21 @@ export type LaunchProduct = {
 
 export const LAUNCH_PRODUCTS: LaunchProduct[] = [
   {
-    id: "rgl-tee-coastal",
-    name: "Runner Gang Coastal Tee",
+    id: "rgl-signature-tee",
+    name: "Runner Gang Signature Tee",
     description:
-      "All-over print tee featuring the coastal city skyline. Premium 100% cotton. Unisex fit. ESTD 2024.",
-    price: 45.0,
+      "The Runner Gang Signature t-shirt featuring the classic script logo. Premium white tee available in four print colorways. Unisex fit. EST. 2025. $24.99 plus shipping and handling.",
+    price: 24.99,
     category: "tee",
-    design: "coastal",
-    thumbnail: "/products/coastal-tee-black.jpg",
+    design: "signature",
+    thumbnail: "/rg1_bw.png",
     colors: [
-      { name: "Black", hex: "#0A0A0A", image: "/products/coastal-tee-black.jpg" },
-      { name: "White", hex: "#F0EBE3", image: "/products/coastal-tee-white.jpg" },
-      { name: "Navy", hex: "#1B2A4A", image: "/products/coastal-tee-navy.jpg" },
-      { name: "Red", hex: "#9B1C1C", image: "/products/coastal-tee-red.jpg" },
-      { name: "Olive", hex: "#3B4A2F", image: "/products/coastal-tee-olive.jpg" }
+      { name: "Black", hex: "#0A0A0A", image: "/rg1_bw.png" },
+      { name: "Blue", hex: "#1D3FE8", image: "/rg1_blw.png" },
+      { name: "Green", hex: "#22C55E", image: "/rg1_gw.png" },
+      { name: "Red", hex: "#EF2424", image: "/rg1_rw.png" }
     ],
-    sizes: ["XS", "S", "M", "L", "XL", "2XL", "3XL"],
-    badge: "NEW DROP",
-    featured: true
-  },
-  {
-    id: "rgl-tee-world",
-    name: "Runner Gang World Tour Tee",
-    description:
-      "All-over print tee featuring global city skylines. Premium 100% cotton. Unisex fit. ESTD 2024.",
-    price: 45.0,
-    category: "tee",
-    design: "world",
-    thumbnail: "/products/world-tee-black.jpg",
-    colors: [
-      { name: "Black", hex: "#0A0A0A", image: "/products/world-tee-black.jpg" },
-      { name: "White", hex: "#F0EBE3", image: "/products/world-tee-white.jpg" },
-      { name: "Navy", hex: "#1B2A4A", image: "/products/world-tee-navy.jpg" },
-      { name: "Red", hex: "#9B1C1C", image: "/products/world-tee-red.jpg" },
-      { name: "Olive", hex: "#3B4A2F", image: "/products/world-tee-olive.jpg" }
-    ],
-    sizes: ["XS", "S", "M", "L", "XL", "2XL", "3XL"],
+    sizes: ["S", "M", "L", "XL"],
     badge: "NEW DROP",
     featured: true
   }
