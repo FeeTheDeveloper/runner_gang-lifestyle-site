@@ -3,7 +3,8 @@ import { isCheckoutEligibleItem } from "@/lib/checkout";
 import {
   getStripeClient,
   getStripeConnectedAccountId,
-  getStripeConnectPaymentIntentParams
+  getStripeConnectPaymentIntentParams,
+  getPublicStripeErrorMessage
 } from "@/lib/stripe";
 import { ESTIMATED_SHIPPING } from "@/lib/storefront";
 
@@ -91,7 +92,12 @@ export async function POST(request: Request) {
     console.error("Stripe checkout creation failed", error);
 
     return NextResponse.json(
-      { error: "Unable to create checkout for this order." },
+      {
+        error: getPublicStripeErrorMessage(
+          error,
+          "Unable to create checkout for this order."
+        )
+      },
       { status: 500 }
     );
   }

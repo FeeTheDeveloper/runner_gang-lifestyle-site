@@ -97,12 +97,20 @@ export default async function OrderConfirmedPage({
             </div>
           ) : null}
 
-          <Link
-            href="/products"
-            className="luxury-button mt-10 border-ember bg-ember text-bone hover:border-sunset hover:bg-sunset"
-          >
-            Continue Shopping
-          </Link>
+          <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
+            <Link
+              href="/account"
+              className="luxury-button border-gold/40 bg-transparent text-bone hover:border-gold hover:text-gold"
+            >
+              Track in Account
+            </Link>
+            <Link
+              href="/products"
+              className="luxury-button border-ember bg-ember text-bone hover:border-sunset hover:bg-sunset"
+            >
+              Continue Shopping
+            </Link>
+          </div>
         </div>
       </section>
       <Footer />

@@ -11,6 +11,7 @@ const navLinks = [
   { label: "Home", href: "/" },
   { label: "Collections", href: "/products" },
   { label: "RG Supply", href: "/supply" },
+  { label: "Account", href: "/account" },
   { label: "About", href: "/#about" },
   { label: "Culture", href: "/#culture" },
   { label: "Contact", href: "/#contact" }
@@ -180,4 +181,3 @@ export default function Navbar() {
     </>
   );
 }
-

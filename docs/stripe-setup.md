@@ -12,3 +12,40 @@
 10. For in-person POS, enable Stripe Terminal in the Dashboard and connect supported Stripe Terminal reader hardware.
 11. All transactions are visible in the Stripe Dashboard together with the checkout metadata payload, and Stripe Connect destination charges are reported to the connected account when `STRIPE_CONNECTED_ACCOUNT_ID` is set.
 12. For testing, use Stripe test keys (`sk_test_...` and `pk_test_...`) and card `4242 4242 4242 4242` with any future expiration date and any CVC.
+
+## Customer account + order tracking setup (Supabase + Resend)
+
+1. Add Supabase environment variables:
+   - `NEXT_PUBLIC_SUPABASE_URL`
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+   - `SUPABASE_SERVICE_ROLE_KEY`
+2. Add transactional email environment variable:
+   - `RESEND_API_KEY`
+3. Ensure your `STRIPE_SECRET_KEY` is a valid single key value (do not concatenate multiple keys in one env var).
+4. Create an `orders` table in Supabase:
+
+```sql
+create table if not exists public.orders (
+  id uuid primary key default gen_random_uuid(),
+  created_at timestamptz not null default now(),
+  status text not null,
+  channel text not null,
+  customer_email text not null,
+  amount_total numeric not null,
+  currency text not null default 'usd',
+  stripe_payment_intent_id text unique,
+  stripe_checkout_session_id text unique,
+  line_items jsonb not null default '[]'::jsonb,
+  metadata jsonb not null default '{}'::jsonb
+);
+
+create index if not exists orders_customer_email_idx on public.orders (customer_email);
+```
+
+5. Keep Stripe webhook endpoint subscribed to:
+   - `payment_intent.succeeded`
+   - `checkout.session.completed`
+6. After webhook delivery, the app will:
+   - store paid orders in Supabase (`orders` table)
+   - send launch-store confirmation emails through Resend
+   - make orders visible at `/account` after customer magic-link login

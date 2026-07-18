@@ -36,3 +36,15 @@ export function getStripeConnectPaymentIntentParams(): Pick<
     }
   };
 }
+
+export function getPublicStripeErrorMessage(error: unknown, fallback: string) {
+  if (error instanceof Stripe.errors.StripeAuthenticationError) {
+    return "Payments are temporarily unavailable due to an invalid Stripe secret key. Update STRIPE_SECRET_KEY and retry.";
+  }
+
+  if (error instanceof Stripe.errors.StripeInvalidRequestError) {
+    return error.message || fallback;
+  }
+
+  return fallback;
+}

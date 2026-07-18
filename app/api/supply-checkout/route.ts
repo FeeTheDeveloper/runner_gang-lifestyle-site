@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import {
   getStripeClient,
   getStripeConnectedAccountId,
-  getStripeConnectPaymentIntentParams
+  getStripeConnectPaymentIntentParams,
+  getPublicStripeErrorMessage
 } from "@/lib/stripe";
 import {
   PRINT_PRICING,
@@ -157,7 +158,12 @@ export async function POST(request: Request) {
     console.error("Supply checkout creation failed", error);
 
     return NextResponse.json(
-      { error: "Unable to create wholesale checkout for this order." },
+      {
+        error: getPublicStripeErrorMessage(
+          error,
+          "Unable to create wholesale checkout for this order."
+        )
+      },
       { status: 500 }
     );
   }

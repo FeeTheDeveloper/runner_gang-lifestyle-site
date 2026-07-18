@@ -85,6 +85,12 @@ export default async function SupplyConfirmedPage({
 
           <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
             <Link
+              href="/account"
+              className="luxury-button border-gold/40 bg-transparent text-bone hover:border-gold hover:text-gold"
+            >
+              Track in Account
+            </Link>
+            <Link
               href="/supply"
               className="luxury-button border-gold/40 bg-transparent text-bone hover:border-gold hover:text-gold"
             >
