@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import { isCheckoutEligibleItem } from "@/lib/checkout";
-import { getStripeClient } from "@/lib/stripe";
+import {
+  getStripeClient,
+  getStripeConnectedAccountId,
+  getStripeConnectPaymentIntentParams
+} from "@/lib/stripe";
 import { ESTIMATED_SHIPPING } from "@/lib/storefront";
 
 export const runtime = "nodejs";
@@ -50,6 +54,7 @@ export async function POST(request: Request) {
     const subtotal = body.items.reduce((total, item) => total + item.price * item.quantity, 0);
     const amount = Math.round((subtotal + ESTIMATED_SHIPPING) * 100);
     const serializedItems = JSON.stringify(body.items);
+    const connectedAccountId = getStripeConnectedAccountId();
 
     const paymentIntent = await stripe.paymentIntents.create({
       amount,
@@ -59,9 +64,12 @@ export async function POST(request: Request) {
       },
       receipt_email: body.customerEmail,
       metadata: {
+        channel: "launch-store",
         items: serializedItems,
-        customerEmail: body.customerEmail
+        customerEmail: body.customerEmail,
+        connectedAccountId: connectedAccountId ?? "platform"
       },
+      ...getStripeConnectPaymentIntentParams(),
       shipping: body.shippingAddress
         ? {
             name: body.shippingAddress.name,

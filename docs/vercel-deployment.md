@@ -7,6 +7,7 @@ Add these variables in the Vercel project settings for Production, Preview, and 
 - `STRIPE_SECRET_KEY`
 - `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`
 - `STRIPE_WEBHOOK_SECRET`
+- `STRIPE_CONNECTED_ACCOUNT_ID` (optional, for Stripe Connect destination reporting)
 - `NEXT_PUBLIC_BASE_URL`
 - `NEXT_PUBLIC_SITE_URL` (optional alias used by supply checkout origin fallback)
 
@@ -21,5 +22,5 @@ Add these variables in the Vercel project settings for Production, Preview, and 
 1. Link the repo to the correct Vercel project.
 2. Add the environment variables in the Vercel dashboard or with `vercel env add`.
 3. Set the production Stripe webhook endpoint to `/api/webhooks/stripe`.
-4. Subscribe the webhook to `payment_intent.succeeded`.
+4. Subscribe the webhook to `payment_intent.succeeded` and `checkout.session.completed`.
 5. Deploy and verify `/`, `/products`, and at least one product checkout flow.

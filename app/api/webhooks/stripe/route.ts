@@ -48,7 +48,20 @@ export async function POST(request: Request) {
     console.log("Stripe payment succeeded", {
       paymentIntentId: paymentIntent.id,
       customerEmail: paymentIntent.metadata.customerEmail || null,
-      itemCount: items.length
+      itemCount: items.length,
+      channel: paymentIntent.metadata.channel || "unknown",
+      connectedAccountId: paymentIntent.metadata.connectedAccountId || null
+    });
+  }
+
+  if (event.type === "checkout.session.completed") {
+    const session = event.data.object as Stripe.Checkout.Session;
+
+    console.log("Stripe checkout session completed", {
+      sessionId: session.id,
+      customerEmail: session.customer_details?.email ?? session.customer_email ?? null,
+      channel: session.metadata?.channel || "unknown",
+      connectedAccountId: session.metadata?.connectedAccountId || null
     });
   }
 

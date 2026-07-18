@@ -1,5 +1,9 @@
 import { NextResponse } from "next/server";
-import { getStripeClient } from "@/lib/stripe";
+import {
+  getStripeClient,
+  getStripeConnectedAccountId,
+  getStripeConnectCheckoutPaymentIntentData
+} from "@/lib/stripe";
 import {
   PRINT_PRICING,
   priceSupplyOrder,
@@ -57,6 +61,7 @@ export async function POST(request: Request) {
     }
 
     const origin = getOrigin(request);
+    const connectedAccountId = getStripeConnectedAccountId();
 
     const lineItems = order.lines.map((line) => {
       const sizeBreakdown = Object.entries(line.sizes)
@@ -91,6 +96,23 @@ export async function POST(request: Request) {
       });
     }
 
+    const metadata = {
+      channel: "rg-supply",
+      companyName: body.companyName ?? "",
+      totalUnits: String(order.totalUnits),
+      connectedAccountId: connectedAccountId ?? "platform",
+      orderLines: JSON.stringify(
+        order.lines.map((line) => ({
+          productId: line.product.id,
+          color: line.colorName,
+          sizes: line.sizes,
+          print: line.printOption,
+          qty: line.totalQty,
+          unit: line.unitPrice
+        }))
+      ).slice(0, 500)
+    };
+
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
       customer_email: body.customerEmail,
@@ -98,20 +120,10 @@ export async function POST(request: Request) {
       shipping_address_collection: {
         allowed_countries: ["US"]
       },
-      metadata: {
-        channel: "rg-supply",
-        companyName: body.companyName ?? "",
-        totalUnits: String(order.totalUnits),
-        orderLines: JSON.stringify(
-          order.lines.map((line) => ({
-            productId: line.product.id,
-            color: line.colorName,
-            sizes: line.sizes,
-            print: line.printOption,
-            qty: line.totalQty,
-            unit: line.unitPrice
-          }))
-        ).slice(0, 500)
+      metadata,
+      payment_intent_data: {
+        ...getStripeConnectCheckoutPaymentIntentData(),
+        metadata
       },
       success_url: `${origin}/supply/confirmed?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/supply`
