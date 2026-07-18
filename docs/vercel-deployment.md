@@ -9,10 +9,12 @@ Add these variables in the Vercel project settings for Production, Preview, and 
 - `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`
 - `STRIPE_WEBHOOK_SECRET`
 - `NEXT_PUBLIC_BASE_URL`
+- `NEXT_PUBLIC_SITE_URL` (optional alias used by supply checkout origin fallback)
 
 ## Notes
 
 - `NEXT_PUBLIC_BASE_URL` should be the full site URL, for example `https://runnergangls.com`.
+- Keep `NEXT_PUBLIC_BASE_URL` and `NEXT_PUBLIC_SITE_URL` the same value if both are set.
 - `STRIPE_PUBLISHABLE_KEY` is not used by the current app. Use `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` instead.
 - If Printful is not connected yet, the launch collection still renders, but live Stripe checkout only works for synced Printful products.
 

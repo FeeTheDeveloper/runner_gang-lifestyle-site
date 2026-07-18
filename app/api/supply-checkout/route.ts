@@ -15,7 +15,7 @@ type SupplyCheckoutBody = {
 };
 
 function getOrigin(request: Request) {
-  const envUrl = process.env.NEXT_PUBLIC_SITE_URL;
+  const envUrl = process.env.NEXT_PUBLIC_SITE_URL ?? process.env.NEXT_PUBLIC_BASE_URL;
   if (envUrl) return envUrl.replace(/\/$/, "");
 
   const origin = request.headers.get("origin");

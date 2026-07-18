@@ -2,6 +2,7 @@
 
 import {
   Elements,
+  ExpressCheckoutElement,
   PaymentElement,
   useElements,
   useStripe
@@ -36,6 +37,30 @@ const initialFormState: ShippingFormState = {
   zip: "",
   country: "US"
 };
+
+function hasAvailabilityFlag(value: unknown): value is { available?: boolean } {
+  return typeof value === "object" && value !== null && "available" in value;
+}
+
+function hasAvailableExpressMethods(
+  paymentMethods: Record<string, unknown> | undefined
+) {
+  if (!paymentMethods) {
+    return false;
+  }
+
+  return Object.values(paymentMethods).some((method) => {
+    if (typeof method === "boolean") {
+      return method;
+    }
+
+    if (hasAvailabilityFlag(method)) {
+      return Boolean(method.available);
+    }
+
+    return false;
+  });
+}
 
 function validateShipping(formState: ShippingFormState) {
   const errors: ShippingFormErrors = {};
@@ -77,18 +102,53 @@ function PaymentForm() {
   const { totalEstimate } = useCart();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isExpressCheckoutAvailable, setIsExpressCheckoutAvailable] = useState(true);
 
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  const returnUrl =
+    typeof window === "undefined" ? "/order-confirmed" : `${window.location.origin}/order-confirmed`;
 
+  async function handleExpressConfirm() {
     if (!stripe || !elements) {
+      setErrorMessage("Stripe checkout is still loading. Please try again.");
       return;
     }
 
     setIsSubmitting(true);
     setErrorMessage(null);
 
-    const returnUrl = `${window.location.origin}/order-confirmed`;
+    const result = await stripe.confirmPayment({
+      elements,
+      confirmParams: {
+        return_url: returnUrl
+      },
+      redirect: "if_required"
+    });
+
+    if (result.error) {
+      setErrorMessage(result.error.message ?? "Express checkout failed.");
+      setIsSubmitting(false);
+      return;
+    }
+
+    if (result.paymentIntent?.id) {
+      window.location.assign(`${returnUrl}?payment_intent=${result.paymentIntent.id}`);
+      return;
+    }
+
+    window.location.assign(returnUrl);
+  }
+
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (!stripe || !elements) {
+      setErrorMessage("Stripe checkout is still loading. Please try again.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    setErrorMessage(null);
+
     const result = await stripe.confirmPayment({
       elements,
       confirmParams: {
@@ -107,6 +167,52 @@ function PaymentForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
+      {isExpressCheckoutAvailable ? (
+        <>
+          <div className="border border-bone/10 bg-obsidian/70 p-4">
+            <ExpressCheckoutElement
+              onConfirm={handleExpressConfirm}
+              onReady={(event) => {
+                setIsExpressCheckoutAvailable(
+                  hasAvailableExpressMethods(
+                    event.availablePaymentMethods as Record<string, unknown> | undefined
+                  )
+                );
+              }}
+              onAvailablePaymentMethodsChange={(event) => {
+                setIsExpressCheckoutAvailable(
+                  hasAvailableExpressMethods(
+                    event.paymentMethods as Record<string, unknown> | undefined
+                  )
+                );
+              }}
+              onLoadError={(event) => {
+                setIsExpressCheckoutAvailable(false);
+                setErrorMessage(
+                  event.error.message ?? "Express checkout buttons failed to load."
+                );
+              }}
+              options={{
+                buttonHeight: 48,
+                layout: {
+                  maxColumns: 1,
+                  maxRows: 2,
+                  overflow: "auto"
+                },
+                paymentMethods: {
+                  applePay: "always",
+                  googlePay: "always",
+                  link: "auto"
+                }
+              }}
+            />
+          </div>
+          <p className="text-center font-body text-[11px] uppercase tracking-[0.24em] text-ash">
+            Or pay with card details
+          </p>
+        </>
+      ) : null}
+
       <div className="border border-bone/10 bg-obsidian/70 p-4">
         <PaymentElement />
       </div>
