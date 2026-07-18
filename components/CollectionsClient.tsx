@@ -2,64 +2,21 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import type { LaunchProduct } from "@/lib/products";
 import { formatCurrency } from "@/lib/storefront";
 import SmartProductImage from "./SmartProductImage";
-
-type DesignFilter = "all" | "coastal" | "world";
 
 type CollectionsClientProps = {
   products: ReadonlyArray<LaunchProduct>;
 };
 
-const FILTERS: Array<{ label: string; value: DesignFilter }> = [
-  { label: "ALL", value: "all" },
-  { label: "COASTAL", value: "coastal" },
-  { label: "WORLD TOUR", value: "world" }
-];
-
 export default function CollectionsClient({ products }: CollectionsClientProps) {
-  const [filter, setFilter] = useState<DesignFilter>("all");
-
-  const filtered = useMemo(() => {
-    if (filter === "all") {
-      return products;
-    }
-
-    return products.filter((product) => product.design === filter);
-  }, [filter, products]);
-
   return (
     <div>
-      <div className="mb-10 flex flex-wrap items-center gap-3">
-        <span className="mr-2 font-body text-[11px] uppercase tracking-[0.3em] text-gold">
-          Filter
-        </span>
-        {FILTERS.map((option) => {
-          const active = option.value === filter;
-
-          return (
-            <button
-              key={option.value}
-              type="button"
-              onClick={() => setFilter(option.value)}
-              aria-pressed={active}
-              className={`luxury-button px-5 py-2 text-[11px] tracking-[0.3em] ${
-                active
-                  ? "border-ember bg-ember text-bone"
-                  : "border-bone/30 bg-smoke text-bone hover:border-gold"
-              }`}
-            >
-              {option.label}
-            </button>
-          );
-        })}
-      </div>
-
       <motion.div layout className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         <AnimatePresence mode="popLayout">
-          {filtered.map((product) => (
+          {products.map((product) => (
             <motion.div
               key={product.id}
               layout

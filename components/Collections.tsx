@@ -28,7 +28,7 @@ function normalizePrintfulToLaunch(product: PrintfulProduct): LaunchProduct {
   const sizes = Array.from(new Set(product.variants.map((variant) => variant.size)));
   const colors = Array.from(colorMap.values());
   const firstPrice = product.variants[0]?.price ?? 45;
-  const design = product.name.toLowerCase().includes("world") ? "world" : "coastal";
+  const design = product.name.toLowerCase().includes("world") ? "world" : "signature";
 
   return {
     id: product.id,
@@ -70,8 +70,8 @@ export default async function Collections() {
             <span className="eyebrow">New Drops</span>
             <h2 className="section-heading">The Collection</h2>
             <p className="mt-5 body-copy max-w-xl">
-              Two designs. Five colorways. Pick your tee - born in the streets,
-              worn across the world.
+              The Runner Gang Signature tee in four colorways. Pick your color
+              - born in the streets, worn across the world.
             </p>
           </div>
           <Link
