@@ -41,14 +41,5 @@ export function getStripeConnectCheckoutPaymentIntentData(): Pick<
   Stripe.PaymentIntentCreateParams,
   "on_behalf_of" | "transfer_data"
 > {
-  if (!stripeConnectedAccountId) {
-    return {};
-  }
-
-  return {
-    on_behalf_of: stripeConnectedAccountId,
-    transfer_data: {
-      destination: stripeConnectedAccountId
-    }
-  };
+  return getStripeConnectPaymentIntentParams();
 }

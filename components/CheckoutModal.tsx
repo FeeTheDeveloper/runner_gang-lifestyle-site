@@ -370,6 +370,9 @@ export default function CheckoutModal() {
             exit={{ opacity: 0, y: 24 }}
             transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
             className="fixed inset-0 z-[100] overflow-y-auto overscroll-contain px-4 py-4 sm:py-8"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="checkout-modal-title"
           >
             <div className="flex min-h-full items-start justify-center sm:items-center">
               <div className="relative flex max-h-[calc(100dvh-2rem)] w-full max-w-lg flex-col overflow-hidden border border-bone/10 bg-smoke shadow-gold sm:max-h-[calc(100dvh-4rem)]">
@@ -388,7 +391,10 @@ export default function CheckoutModal() {
                     <p className="font-body text-xs uppercase tracking-[0.36em] text-gold">
                       Secure Checkout
                     </p>
-                    <h2 className="mt-3 font-display text-5xl uppercase leading-none tracking-[0.14em] text-bone">
+                    <h2
+                      id="checkout-modal-title"
+                      className="mt-3 font-display text-5xl uppercase leading-none tracking-[0.14em] text-bone"
+                    >
                       {step === 1 ? "Step 1 / Shipping" : "Step 2 / Payment"}
                     </h2>
                     <p className="mt-4 font-body text-sm uppercase tracking-[0.18em] text-ash">

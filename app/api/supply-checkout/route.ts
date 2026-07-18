@@ -101,6 +101,7 @@ export async function POST(request: Request) {
       companyName: body.companyName ?? "",
       totalUnits: String(order.totalUnits),
       connectedAccountId: connectedAccountId ?? "platform",
+      // Stripe metadata values are capped, so large size breakdowns are trimmed for reporting.
       orderLines: JSON.stringify(
         order.lines.map((line) => ({
           productId: line.product.id,
