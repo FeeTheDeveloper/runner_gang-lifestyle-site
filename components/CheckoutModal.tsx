@@ -11,8 +11,6 @@ import { AnimatePresence, motion } from "framer-motion";
 import { LoaderCircle, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useCart } from "@/context/CartContext";
-import { isCheckoutEligibleItem } from "@/lib/checkout";
-import { CONTACT_EMAIL } from "@/lib/site";
 import { stripePromise } from "@/lib/stripe-client";
 import { formatCurrency } from "@/lib/storefront";
 
@@ -243,7 +241,6 @@ function PaymentForm() {
 
 export default function CheckoutModal() {
   const { items, isCheckoutOpen, closeCheckout, totalEstimate } = useCart();
-  const hasUnsupportedItems = items.some((item) => !isCheckoutEligibleItem(item));
   const [step, setStep] = useState<1 | 2>(1);
   const [formState, setFormState] = useState<ShippingFormState>(initialFormState);
   const [errors, setErrors] = useState<ShippingFormErrors>({});
@@ -285,13 +282,6 @@ export default function CheckoutModal() {
 
     if (items.length === 0) {
       setCheckoutError("Add at least one item before opening checkout.");
-      return;
-    }
-
-    if (hasUnsupportedItems) {
-      setCheckoutError(
-        `This cart includes launch preview items. Email ${CONTACT_EMAIL} for manual ordering.`
-      );
       return;
     }
 
@@ -392,19 +382,6 @@ export default function CheckoutModal() {
                     <p className="font-body text-sm uppercase tracking-[0.18em] text-ash">
                       Your cart is empty. Add a live product to continue.
                     </p>
-                  </div>
-                ) : hasUnsupportedItems ? (
-                  <div className="mt-8 border border-bone/10 bg-obsidian/70 p-6 text-center">
-                    <p className="font-body text-sm uppercase tracking-[0.18em] text-ash">
-                      This cart includes launch preview items that are not wired to
-                      live fulfillment.
-                    </p>
-                    <a
-                      href={`mailto:${CONTACT_EMAIL}`}
-                      className="luxury-button mt-5 border-ember bg-ember text-bone hover:border-sunset hover:bg-sunset"
-                    >
-                      Email to Order
-                    </a>
                   </div>
                 ) : step === 1 ? (
                   <div className="mt-8 space-y-4">

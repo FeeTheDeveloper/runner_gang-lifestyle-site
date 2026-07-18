@@ -1,65 +1,9 @@
 import Link from "next/link";
-import { unstable_noStore as noStore } from "next/cache";
-import { getProducts, type PrintfulProduct } from "@/lib/printful";
 import { LAUNCH_PRODUCTS, type LaunchProduct } from "@/lib/products";
 import CollectionsClient from "./CollectionsClient";
 
-const FALLBACK_HEX_BY_NAME: Record<string, string> = {
-  Black: "#0A0A0A",
-  White: "#F0EBE3",
-  Navy: "#1B2A4A",
-  Red: "#9B1C1C",
-  Olive: "#3B4A2F"
-};
-
-function normalizePrintfulToLaunch(product: PrintfulProduct): LaunchProduct {
-  const colorMap = new Map<string, { name: string; hex: string; image: string }>();
-
-  for (const variant of product.variants) {
-    if (!colorMap.has(variant.color)) {
-      colorMap.set(variant.color, {
-        name: variant.color,
-        hex: FALLBACK_HEX_BY_NAME[variant.color] ?? "#1E1E1E",
-        image: variant.image || product.thumbnail_url
-      });
-    }
-  }
-
-  const sizes = Array.from(new Set(product.variants.map((variant) => variant.size)));
-  const colors = Array.from(colorMap.values());
-  const firstPrice = product.variants[0]?.price ?? 45;
-  const design = product.name.toLowerCase().includes("world") ? "world" : "signature";
-
-  return {
-    id: product.id,
-    name: product.name,
-    description: product.description ?? "Runner Gang Lifestyle drop.",
-    price: firstPrice,
-    category: "tee",
-    design,
-    thumbnail: product.thumbnail_url,
-    colors,
-    sizes,
-    badge: "LIVE NOW",
-    featured: true
-  };
-}
-
 export default async function Collections() {
-  noStore();
-
-  let printfulProducts: PrintfulProduct[] = [];
-
-  try {
-    printfulProducts = await getProducts();
-  } catch {
-    printfulProducts = [];
-  }
-
-  const products: ReadonlyArray<LaunchProduct> =
-    printfulProducts.length > 0
-      ? printfulProducts.map(normalizePrintfulToLaunch).slice(0, 6)
-      : LAUNCH_PRODUCTS;
+  const products: ReadonlyArray<LaunchProduct> = LAUNCH_PRODUCTS.slice(0, 6);
 
   return (
     <section id="collections" className="relative">

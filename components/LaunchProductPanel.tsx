@@ -1,9 +1,10 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { useMemo, useState } from "react";
+import { useState } from "react";
+import { useCart } from "@/context/CartContext";
 import type { LaunchProduct, ProductColor } from "@/lib/products";
-import { CONTACT_EMAIL, INSTAGRAM_HANDLE, INSTAGRAM_URL } from "@/lib/site";
+import { INSTAGRAM_HANDLE, INSTAGRAM_URL } from "@/lib/site";
 import { formatCurrency } from "@/lib/storefront";
 
 type LaunchProductPanelProps = {
@@ -29,25 +30,28 @@ export default function LaunchProductPanel({
   const [selectedSize, setSelectedSize] = useState<string>(product.sizes[2] ?? product.sizes[0]);
   const [quantity, setQuantity] = useState(1);
   const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
+  const { addItem, openCheckout } = useCart();
 
   const selectedColor = product.colors[colorIndex];
   const orderSummary = `${product.name} - ${selectedColor.name} / ${selectedSize} x${quantity}`;
-  const mailToHref = useMemo(() => {
-    const subject = encodeURIComponent(`Order request: ${product.name}`);
-    const body = encodeURIComponent(
-      [
-        "Hi Runner Gang Lifestyle,",
-        "",
-        `I want to order: ${orderSummary}`,
-        "",
-        "Please send me the next steps for payment and fulfillment.",
-        "",
-        "Thank you."
-      ].join("\n")
-    );
 
-    return `mailto:${CONTACT_EMAIL}?subject=${subject}&body=${body}`;
-  }, [orderSummary, product.name]);
+  function handleCheckout() {
+    const variantId = `${product.id}::${selectedColor.name}::${selectedSize}`;
+
+    addItem({
+      variant_id: variantId,
+      product_id: product.id,
+      name: product.name,
+      size: selectedSize,
+      color: selectedColor.name,
+      price: product.price,
+      quantity,
+      image: selectedColor.image || product.thumbnail,
+      catalogSource: "launch"
+    });
+
+    openCheckout();
+  }
 
   function selectColor(index: number) {
     setColorIndex(index);
@@ -63,7 +67,7 @@ export default function LaunchProductPanel({
         {formatCurrency(product.price)}
       </p>
       <p className="mt-3 font-body text-sm uppercase tracking-[0.18em] text-ash">
-        Select your color, size, and quantity, then reach out for manual ordering.
+        Select your color, size, and quantity to go straight into secure checkout.
       </p>
 
       <div className="mt-8">
@@ -159,12 +163,13 @@ export default function LaunchProductPanel({
       </div>
 
       <div className="mt-10 grid gap-3">
-        <a
-          href={mailToHref}
+        <button
+          type="button"
+          onClick={handleCheckout}
           className="luxury-button w-full border-ember bg-ember text-center text-bone hover:border-sunset hover:bg-sunset"
         >
-          Email to Order
-        </a>
+          Checkout Securely
+        </button>
         <a
           href={INSTAGRAM_URL}
           target="_blank"

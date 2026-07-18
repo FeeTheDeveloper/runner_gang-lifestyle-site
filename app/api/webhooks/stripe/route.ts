@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import type Stripe from "stripe";
-import { createOrder } from "@/lib/printful";
 import { getStripeClient } from "@/lib/stripe";
 
 export const runtime = "nodejs";
@@ -10,6 +9,7 @@ type SerializedItem = {
   quantity: number;
   name: string;
   price: number;
+  catalogSource?: "launch";
 };
 
 export async function POST(request: Request) {
@@ -37,51 +37,20 @@ export async function POST(request: Request) {
 
   if (event.type === "payment_intent.succeeded") {
     const paymentIntent = event.data.object as Stripe.PaymentIntent;
-    const shipping = paymentIntent.shipping;
-    const address = shipping?.address;
-
-    if (!shipping?.name || !address?.line1 || !address.city || !address.postal_code || !address.country) {
-      console.error("Stripe payment intent is missing shipping details", paymentIntent.id);
-
-      return NextResponse.json(
-        { error: "Shipping details were not available for fulfillment." },
-        { status: 400 }
-      );
-    }
+    let items: SerializedItem[] = [];
 
     try {
-      const items = JSON.parse(paymentIntent.metadata.items ?? "[]") as SerializedItem[];
-
-      const order = await createOrder({
-        recipient: {
-          name: shipping.name,
-          email: paymentIntent.metadata.customerEmail || undefined,
-          address1: address.line1,
-          city: address.city,
-          state_code: address.state ?? "",
-          country_code: address.country,
-          zip: address.postal_code
-        },
-        items: items.map((item) => ({
-          variant_id: Number(item.variant_id),
-          quantity: item.quantity
-        })),
-        confirm: true
-      });
-
-      console.log("Printful order confirmed", {
-        paymentIntentId: paymentIntent.id,
-        printfulOrder: order?.result?.id ?? order?.id ?? "submitted"
-      });
-    } catch (error) {
-      console.error("Failed to submit Printful order", error);
-      return NextResponse.json(
-        { error: "Stripe payment succeeded, but Printful submission failed." },
-        { status: 500 }
-      );
+      items = JSON.parse(paymentIntent.metadata.items ?? "[]") as SerializedItem[];
+    } catch {
+      items = [];
     }
+
+    console.log("Stripe payment succeeded", {
+      paymentIntentId: paymentIntent.id,
+      customerEmail: paymentIntent.metadata.customerEmail || null,
+      itemCount: items.length
+    });
   }
 
   return NextResponse.json({ received: true });
 }
-
