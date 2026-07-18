@@ -145,6 +145,40 @@ export async function sendLaunchOrderConfirmationEmail(paymentIntent: Stripe.Pay
   }
 }
 
+export async function sendSupplyOrderConfirmationEmail(session: Stripe.Checkout.Session) {
+  if (!isResendConfigured()) {
+    return;
+  }
+
+  const customerEmail = session.customer_details?.email ?? session.customer_email ?? "";
+
+  if (!customerEmail) {
+    return;
+  }
+
+  const resend = getResendClient();
+  const amount = (session.amount_total ?? 0) / 100;
+  const totalUnits = session.metadata?.totalUnits ?? "n/a";
+  const companyName = session.metadata?.companyName ?? "";
+
+  const { error } = await resend.emails.send({
+    from: "onboarding@resend.dev",
+    to: customerEmail,
+    subject: "Runner Gang supply order confirmation",
+    html: `
+      <h2>Your wholesale order is confirmed.</h2>
+      <p>Thanks${companyName ? `, ${companyName}` : ""}. We received your payment.</p>
+      <p><strong>Total:</strong> $${amount.toFixed(2)}</p>
+      <p><strong>Units:</strong> ${totalUnits}</p>
+      <p>You can log in to your customer account to track your order status.</p>
+    `
+  });
+
+  if (error) {
+    throw new Error(`Failed to send supply order confirmation email: ${error.message}`);
+  }
+}
+
 export async function listOrdersForCustomerEmail(customerEmail: string): Promise<StoredOrderRecord[]> {
   const supabase = getSupabaseServiceClient();
   const { data, error } = await supabase

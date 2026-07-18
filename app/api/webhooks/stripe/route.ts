@@ -4,7 +4,8 @@ import { getStripeClient } from "@/lib/stripe";
 import {
   recordLaunchOrder,
   recordSupplyOrder,
-  sendLaunchOrderConfirmationEmail
+  sendLaunchOrderConfirmationEmail,
+  sendSupplyOrderConfirmationEmail
 } from "@/lib/orders";
 
 export const runtime = "nodejs";
@@ -85,6 +86,12 @@ export async function POST(request: Request) {
       await recordSupplyOrder(session);
     } catch (error) {
       console.error("Failed to store supply order", error);
+    }
+
+    try {
+      await sendSupplyOrderConfirmationEmail(session);
+    } catch (error) {
+      console.error("Failed to send supply order email", error);
     }
   }
 
