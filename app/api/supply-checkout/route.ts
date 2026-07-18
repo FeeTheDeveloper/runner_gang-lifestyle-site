@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import {
   getStripeClient,
   getStripeConnectedAccountId,
-  getStripeConnectCheckoutPaymentIntentData
+  getStripeConnectPaymentIntentParams
 } from "@/lib/stripe";
 import {
   PRINT_PRICING,
@@ -11,6 +11,7 @@ import {
 } from "@/lib/supply";
 
 export const runtime = "nodejs";
+const STRIPE_METADATA_VALUE_MAX_LENGTH = 500;
 
 type SupplyCheckoutBody = {
   lines: SupplyOrderLine[];
@@ -111,7 +112,7 @@ export async function POST(request: Request) {
           qty: line.totalQty,
           unit: line.unitPrice
         }))
-      ).slice(0, 500)
+      ).slice(0, STRIPE_METADATA_VALUE_MAX_LENGTH)
     };
 
     const session = await stripe.checkout.sessions.create({
@@ -123,7 +124,7 @@ export async function POST(request: Request) {
       },
       metadata,
       payment_intent_data: {
-        ...getStripeConnectCheckoutPaymentIntentData(),
+        ...getStripeConnectPaymentIntentParams(),
         metadata
       },
       success_url: `${origin}/supply/confirmed?session_id={CHECKOUT_SESSION_ID}`,

@@ -36,10 +36,3 @@ export function getStripeConnectPaymentIntentParams(): Pick<
     }
   };
 }
-
-export function getStripeConnectCheckoutPaymentIntentData(): Pick<
-  Stripe.PaymentIntentCreateParams,
-  "on_behalf_of" | "transfer_data"
-> {
-  return getStripeConnectPaymentIntentParams();
-}

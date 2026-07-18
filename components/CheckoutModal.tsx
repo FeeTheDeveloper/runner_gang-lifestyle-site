@@ -35,6 +35,8 @@ const initialFormState: ShippingFormState = {
   zip: "",
   country: "US"
 };
+const MOBILE_EXPRESS_BUTTON_HEIGHT = 52;
+const DESKTOP_EXPRESS_BUTTON_HEIGHT = 48;
 
 function hasAvailabilityFlag(value: unknown): value is { available?: boolean } {
   return typeof value === "object" && value !== null && "available" in value;
@@ -209,7 +211,9 @@ function PaymentForm() {
                 );
               }}
               options={{
-                buttonHeight: isMobileViewport ? 52 : 48,
+                buttonHeight: isMobileViewport
+                  ? MOBILE_EXPRESS_BUTTON_HEIGHT
+                  : DESKTOP_EXPRESS_BUTTON_HEIGHT,
                 layout: {
                   maxColumns: 1,
                   maxRows: isMobileViewport ? 3 : 2,
