@@ -13,6 +13,29 @@ import {
 export const runtime = "nodejs";
 const STRIPE_METADATA_VALUE_MAX_LENGTH = 500;
 
+function serializeOrderLinesForMetadata(lines: SupplyOrderLine[]) {
+  const serializedLines = lines.map((line) => ({
+    productId: line.product.id,
+    color: line.colorName,
+    sizes: line.sizes,
+    print: line.printOption,
+    qty: line.totalQty,
+    unit: line.unitPrice
+  }));
+
+  while (serializedLines.length > 0) {
+    const value = JSON.stringify(serializedLines);
+
+    if (value.length <= STRIPE_METADATA_VALUE_MAX_LENGTH) {
+      return value;
+    }
+
+    serializedLines.pop();
+  }
+
+  return "[]";
+}
+
 type SupplyCheckoutBody = {
   lines: SupplyOrderLine[];
   customerEmail: string;
@@ -102,17 +125,7 @@ export async function POST(request: Request) {
       companyName: body.companyName ?? "",
       totalUnits: String(order.totalUnits),
       connectedAccountId: connectedAccountId ?? "platform",
-      // Stripe metadata values are capped, so large size breakdowns are trimmed for reporting.
-      orderLines: JSON.stringify(
-        order.lines.map((line) => ({
-          productId: line.product.id,
-          color: line.colorName,
-          sizes: line.sizes,
-          print: line.printOption,
-          qty: line.totalQty,
-          unit: line.unitPrice
-        }))
-      ).slice(0, STRIPE_METADATA_VALUE_MAX_LENGTH)
+      orderLines: serializeOrderLinesForMetadata(order.lines)
     };
 
     const session = await stripe.checkout.sessions.create({
