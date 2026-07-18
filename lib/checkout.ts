@@ -9,7 +9,7 @@ export function isPrintfulVariantId(variantId: string | number) {
 
 export function isCheckoutEligibleItem(item: CheckoutEligibleItem) {
   if (item.catalogSource) {
-    return item.catalogSource === "printful";
+    return item.catalogSource === "printful" || item.catalogSource === "launch";
   }
 
   return isPrintfulVariantId(item.variant_id);

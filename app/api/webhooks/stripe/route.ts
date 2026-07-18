@@ -10,6 +10,7 @@ type SerializedItem = {
   quantity: number;
   name: string;
   price: number;
+  catalogSource?: "printful" | "launch";
 };
 
 export async function POST(request: Request) {
@@ -51,6 +52,17 @@ export async function POST(request: Request) {
 
     try {
       const items = JSON.parse(paymentIntent.metadata.items ?? "[]") as SerializedItem[];
+      const printfulItems = items.filter((item) => {
+        if (item.catalogSource) {
+          return item.catalogSource === "printful";
+        }
+
+        return /^\d+$/.test(String(item.variant_id).trim());
+      });
+
+      if (printfulItems.length === 0) {
+        return NextResponse.json({ received: true });
+      }
 
       const order = await createOrder({
         recipient: {
@@ -62,7 +74,7 @@ export async function POST(request: Request) {
           country_code: address.country,
           zip: address.postal_code
         },
-        items: items.map((item) => ({
+        items: printfulItems.map((item) => ({
           variant_id: Number(item.variant_id),
           quantity: item.quantity
         })),
@@ -84,4 +96,3 @@ export async function POST(request: Request) {
 
   return NextResponse.json({ received: true });
 }
-

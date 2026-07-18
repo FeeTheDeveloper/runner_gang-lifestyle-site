@@ -10,6 +10,7 @@ type CheckoutItem = {
   quantity: number;
   name: string;
   price: number;
+  catalogSource?: "printful" | "launch";
 };
 
 type CheckoutRequestBody = {
