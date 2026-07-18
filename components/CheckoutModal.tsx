@@ -373,7 +373,7 @@ export default function CheckoutModal() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 24 }}
             transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
-            className="fixed inset-0 z-[100] overscroll-contain touch-pan-y px-4 py-4 sm:py-8"
+            className="fixed inset-0 z-[100] touch-pan-y px-4 py-4 sm:py-8"
             role="dialog"
             aria-modal="true"
             aria-labelledby="checkout-modal-title"
@@ -390,7 +390,7 @@ export default function CheckoutModal() {
                   <X className="h-4 w-4" />
                 </button>
 
-                <div className="overflow-y-auto p-6 [-webkit-overflow-scrolling:touch] sm:p-8">
+                <div className="overflow-y-auto overscroll-contain p-6 sm:p-8">
                   <div className="pr-12">
                     <p className="font-body text-xs uppercase tracking-[0.36em] text-gold">
                       Secure Checkout
