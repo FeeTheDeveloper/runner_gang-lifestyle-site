@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import type Stripe from "stripe";
+import { isPrintfulVariantId } from "@/lib/checkout";
 import { createOrder } from "@/lib/printful";
 import { getStripeClient } from "@/lib/stripe";
 
@@ -57,10 +58,11 @@ export async function POST(request: Request) {
           return item.catalogSource === "printful";
         }
 
-        return /^\d+$/.test(String(item.variant_id).trim());
+        return isPrintfulVariantId(item.variant_id);
       });
 
       if (printfulItems.length === 0) {
+        // Launch-only carts still complete payment, but they do not map to Printful fulfillment.
         return NextResponse.json({ received: true });
       }
 
