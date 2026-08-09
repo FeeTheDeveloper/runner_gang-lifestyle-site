@@ -4,6 +4,7 @@ import { unstable_noStore as noStore } from "next/cache";
 import ClearCartOnMount from "@/components/ClearCartOnMount";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
+import { parseRetailLineItems, type StoredLineItem } from "@/lib/orders";
 import { stripeClient } from "@/lib/stripe";
 import { formatCurrency } from "@/lib/storefront";
 
@@ -11,12 +12,6 @@ type OrderConfirmedPageProps = {
   searchParams?: {
     payment_intent?: string;
   };
-};
-
-type StoredLineItem = {
-  name: string;
-  quantity: number;
-  price: number;
 };
 
 export default async function OrderConfirmedPage({
@@ -32,7 +27,7 @@ export default async function OrderConfirmedPage({
     try {
       const paymentIntent = await stripeClient.paymentIntents.retrieve(paymentIntentId);
       totalAmount = (paymentIntent.amount_received || paymentIntent.amount) / 100;
-      lineItems = JSON.parse(paymentIntent.metadata.items ?? "[]") as StoredLineItem[];
+      lineItems = parseRetailLineItems(paymentIntent.metadata);
     } catch (error) {
       console.error("Failed to retrieve confirmed payment intent", error);
     }
@@ -67,19 +62,19 @@ export default async function OrderConfirmedPage({
               <div className="mt-5 space-y-3">
                 {lineItems.map((item) => (
                   <div
-                    key={`${item.name}-${item.quantity}`}
+                    key={`${item.sku}-${item.quantity}`}
                     className="flex items-center justify-between gap-4 border-b border-bone/10 pb-3 last:border-b-0 last:pb-0"
                   >
                     <div>
                       <p className="font-display text-3xl uppercase leading-none tracking-[0.08em] text-bone">
-                        {item.name}
+                        {item.productName}
                       </p>
                       <p className="mt-2 font-body text-xs uppercase tracking-[0.24em] text-ash">
-                        Quantity {item.quantity}
+                        {item.color} / {item.size} · Quantity {item.quantity}
                       </p>
                     </div>
                     <p className="font-body text-sm uppercase tracking-[0.24em] text-bone">
-                      {formatCurrency(item.price * item.quantity)}
+                      {formatCurrency(item.unitPrice * item.quantity)}
                     </p>
                   </div>
                 ))}

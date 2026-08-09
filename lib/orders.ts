@@ -4,37 +4,82 @@ import { getSupabaseServiceClient } from "@/lib/supabase-server";
 import { isResendConfigured, isSupabaseServerConfigured } from "@/lib/env";
 import type { Database } from "@/lib/supabase-types";
 
-type StoredLineItem = {
-  name: string;
+export type StoredLineItem = {
+  productId: string;
+  productName: string;
+  sku: string;
+  color: string;
+  size: string;
   quantity: number;
-  price: number;
+  unitPrice: number;
+  image: string;
 };
 
 type StoredOrderRecord = Database["public"]["Tables"]["orders"]["Row"];
 
-function parseMetadataItems(itemsJson: string | undefined): StoredLineItem[] {
-  if (!itemsJson) {
-    return [];
+function normalizeLineItem(item: Record<string, unknown>): StoredLineItem | null {
+  const productName =
+    typeof item.productName === "string"
+      ? item.productName
+      : typeof item.name === "string"
+        ? item.name
+        : "Item";
+  const unitPrice =
+    typeof item.unitPrice === "number"
+      ? item.unitPrice
+      : typeof item.price === "number"
+        ? item.price
+        : 0;
+  const quantity = typeof item.quantity === "number" ? item.quantity : 0;
+
+  if (!Number.isInteger(quantity) || quantity <= 0) {
+    return null;
   }
 
+  return {
+    productId: typeof item.productId === "string" ? item.productId : "",
+    productName,
+    sku: typeof item.sku === "string" ? item.sku : "",
+    color: typeof item.color === "string" ? item.color : "",
+    size: typeof item.size === "string" ? item.size : "",
+    quantity,
+    unitPrice,
+    image: typeof item.image === "string" ? item.image : ""
+  };
+}
+
+export function parseRetailLineItems(metadata: Stripe.Metadata): StoredLineItem[] {
+  const itemCount = Number.parseInt(metadata.itemCount ?? "", 10);
+
+  if (Number.isInteger(itemCount) && itemCount >= 0) {
+    const items: StoredLineItem[] = [];
+
+    for (let index = 0; index < itemCount; index += 1) {
+      const serializedItem = metadata[`item_${index}`];
+      if (!serializedItem) continue;
+
+      try {
+        const item = normalizeLineItem(JSON.parse(serializedItem) as Record<string, unknown>);
+        if (item) items.push(item);
+      } catch {
+        continue;
+      }
+    }
+
+    return items;
+  }
+
+  const legacyItemsJson = metadata.items;
+  if (!legacyItemsJson) return [];
+
   try {
-    const parsed = JSON.parse(itemsJson) as Array<{
-      name?: unknown;
-      quantity?: unknown;
-      price?: unknown;
-    }>;
+    const parsed = JSON.parse(legacyItemsJson) as Array<Record<string, unknown>>;
 
     if (!Array.isArray(parsed)) {
       return [];
     }
 
-    return parsed
-      .map((item) => ({
-        name: typeof item.name === "string" ? item.name : "Item",
-        quantity: typeof item.quantity === "number" ? item.quantity : 1,
-        price: typeof item.price === "number" ? item.price : 0
-      }))
-      .filter((item) => item.quantity > 0);
+    return parsed.map(normalizeLineItem).filter((item): item is StoredLineItem => item !== null);
   } catch {
     return [];
   }
@@ -42,13 +87,13 @@ function parseMetadataItems(itemsJson: string | undefined): StoredLineItem[] {
 
 export async function recordLaunchOrder(paymentIntent: Stripe.PaymentIntent) {
   if (!isSupabaseServerConfigured()) {
-    return;
+    throw new Error("Supabase is not configured for order persistence.");
   }
 
   const customerEmail = paymentIntent.metadata.customerEmail ?? paymentIntent.receipt_email ?? "";
 
   if (!customerEmail) {
-    return;
+    throw new Error("Cannot persist launch order without a customer email.");
   }
 
   const supabase = getSupabaseServiceClient();
@@ -59,7 +104,7 @@ export async function recordLaunchOrder(paymentIntent: Stripe.PaymentIntent) {
       customer_email: customerEmail,
       amount_total: (paymentIntent.amount_received || paymentIntent.amount) / 100,
       currency: paymentIntent.currency,
-      line_items: parseMetadataItems(paymentIntent.metadata.items),
+      line_items: parseRetailLineItems(paymentIntent.metadata),
       metadata: paymentIntent.metadata
     };
   const { error } = await supabase
@@ -73,13 +118,13 @@ export async function recordLaunchOrder(paymentIntent: Stripe.PaymentIntent) {
 
 export async function recordSupplyOrder(session: Stripe.Checkout.Session) {
   if (!isSupabaseServerConfigured()) {
-    return;
+    throw new Error("Supabase is not configured for order persistence.");
   }
 
   const customerEmail = session.customer_details?.email ?? session.customer_email ?? "";
 
   if (!customerEmail) {
-    return;
+    throw new Error("Cannot persist supply order without a customer email.");
   }
 
   const supabase = getSupabaseServiceClient();
@@ -108,7 +153,10 @@ function buildLineItemsHtml(items: StoredLineItem[]) {
   }
 
   return items
-    .map((item) => `<li>${item.name} x${item.quantity}</li>`)
+    .map(
+      (item) =>
+        `<li>${item.productName} — ${item.color} / ${item.size} (${item.sku}) x${item.quantity}</li>`
+    )
     .join("");
 }
 
@@ -124,7 +172,7 @@ export async function sendLaunchOrderConfirmationEmail(paymentIntent: Stripe.Pay
   }
 
   const resend = getResendClient();
-  const lineItems = parseMetadataItems(paymentIntent.metadata.items);
+  const lineItems = parseRetailLineItems(paymentIntent.metadata);
   const amount = (paymentIntent.amount_received || paymentIntent.amount) / 100;
 
   const { error } = await resend.emails.send({

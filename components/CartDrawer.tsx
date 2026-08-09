@@ -97,7 +97,7 @@ export default function CartDrawer() {
                           <div className="relative h-28 w-24 flex-none overflow-hidden bg-obsidian">
                             <Image
                               src={item.image}
-                              alt={item.name}
+                              alt={item.productName}
                               fill
                               sizes="96px"
                               className="object-cover"
@@ -109,7 +109,7 @@ export default function CartDrawer() {
                               <div className="flex items-start justify-between gap-4">
                                 <div>
                                   <p className="font-display text-[28px] uppercase leading-none tracking-[0.08em] text-bone">
-                                    {item.name}
+                                    {item.productName}
                                   </p>
                                   <p className="mt-2 font-body text-xs uppercase tracking-[0.24em] text-ash">
                                     {item.color} / {item.size}
@@ -133,7 +133,7 @@ export default function CartDrawer() {
                                     updateQuantity(item.variant_id, item.quantity - 1)
                                   }
                                   className="inline-flex h-10 w-10 items-center justify-center text-bone hover:text-gold"
-                                  aria-label={`Decrease quantity for ${item.name}`}
+                                  aria-label={`Decrease quantity for ${item.productName}`}
                                 >
                                   <Minus className="h-4 w-4" />
                                 </button>
@@ -146,13 +146,13 @@ export default function CartDrawer() {
                                     updateQuantity(item.variant_id, item.quantity + 1)
                                   }
                                   className="inline-flex h-10 w-10 items-center justify-center text-bone hover:text-gold"
-                                  aria-label={`Increase quantity for ${item.name}`}
+                                  aria-label={`Increase quantity for ${item.productName}`}
                                 >
                                   <Plus className="h-4 w-4" />
                                 </button>
                               </div>
                               <p className="font-body text-sm uppercase tracking-[0.24em] text-bone">
-                                {formatCurrency(item.price * item.quantity)}
+                                {formatCurrency(item.unitPrice * item.quantity)}
                               </p>
                             </div>
                           </div>

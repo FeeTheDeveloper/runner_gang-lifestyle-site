@@ -37,14 +37,18 @@ export default function LaunchProductPanel({
 
   function handleCheckout() {
     const variantId = `${product.id}::${selectedColor.name}::${selectedSize}`;
+    const sku = selectedColor.skuBase
+      ? `${selectedColor.skuBase}-${selectedSize}`
+      : variantId;
 
     addItem({
       variant_id: variantId,
-      product_id: product.id,
-      name: product.name,
+      productId: product.id,
+      productName: product.name,
       size: selectedSize,
       color: selectedColor.name,
-      price: product.price,
+      sku,
+      unitPrice: product.price,
       quantity,
       image: selectedColor.image || product.thumbnail,
       catalogSource: "launch"
@@ -67,7 +71,7 @@ export default function LaunchProductPanel({
         {formatCurrency(product.price)}
       </p>
       <p className="mt-3 font-body text-sm uppercase tracking-[0.18em] text-ash">
-        Select your color, size, and quantity to go straight into secure checkout.
+        $39.99 plus shipping. Made to order in limited production batches.
       </p>
 
       <div className="mt-8">

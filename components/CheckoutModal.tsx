@@ -319,9 +319,14 @@ export default function CheckoutModal() {
         body: JSON.stringify({
           items: items.map((item) => ({
             variant_id: item.variant_id,
+            productId: item.productId,
+            productName: item.productName,
+            color: item.color,
+            size: item.size,
+            sku: item.sku,
             quantity: item.quantity,
-            name: item.name,
-            price: item.price,
+            unitPrice: item.unitPrice,
+            image: item.image,
             catalogSource: item.catalogSource
           })),
           customerEmail: formState.email,

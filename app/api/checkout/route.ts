@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { isCheckoutEligibleItem } from "@/lib/checkout";
+import { getLaunchProduct } from "@/lib/products";
 import {
   getStripeClient,
   getStripeConnectedAccountId,
@@ -12,11 +12,30 @@ export const runtime = "nodejs";
 
 type CheckoutItem = {
   variant_id: string | number;
+  productId: string;
+  productName?: string;
+  color: string;
+  size: string;
+  sku?: string;
   quantity: number;
-  name: string;
-  price: number;
+  unitPrice?: number;
+  image?: string;
   catalogSource?: "launch";
 };
+
+type AuthoritativeLineItem = {
+  productId: string;
+  productName: string;
+  sku: string;
+  color: string;
+  size: string;
+  quantity: number;
+  unitPrice: number;
+  image: string;
+};
+
+const MAX_RETAIL_LINE_ITEMS = 40;
+const STRIPE_METADATA_VALUE_MAX_LENGTH = 500;
 
 type CheckoutRequestBody = {
   items: CheckoutItem[];
@@ -43,18 +62,84 @@ export async function POST(request: Request) {
       );
     }
 
-    if (body.items.some((item) => !isCheckoutEligibleItem(item))) {
+    if (body.items.length > MAX_RETAIL_LINE_ITEMS) {
       return NextResponse.json(
-        {
-          error: "One or more items are missing required checkout details."
-        },
+        { error: `Checkout supports up to ${MAX_RETAIL_LINE_ITEMS} line items.` },
         { status: 400 }
       );
     }
 
-    const subtotal = body.items.reduce((total, item) => total + item.price * item.quantity, 0);
+    if (!body.customerEmail || !/^\S+@\S+\.\S+$/.test(body.customerEmail)) {
+      return NextResponse.json({ error: "A valid email is required." }, { status: 400 });
+    }
+
+    const lineItems: AuthoritativeLineItem[] = [];
+
+    for (const item of body.items) {
+      const product = getLaunchProduct(item.productId);
+
+      if (!product) {
+        return NextResponse.json(
+          { error: `Unknown product: ${item.productId || "missing product ID"}.` },
+          { status: 400 }
+        );
+      }
+
+      const color = product.colors.find((option) => option.name === item.color);
+      if (!color) {
+        return NextResponse.json(
+          { error: `Invalid color for ${product.name}.` },
+          { status: 400 }
+        );
+      }
+
+      if (!product.sizes.includes(item.size)) {
+        return NextResponse.json(
+          { error: `Invalid size for ${product.name}.` },
+          { status: 400 }
+        );
+      }
+
+      if (!Number.isInteger(item.quantity) || item.quantity <= 0) {
+        return NextResponse.json(
+          { error: `Quantity for ${product.name} must be a positive integer.` },
+          { status: 400 }
+        );
+      }
+
+      const sku = color.skuBase
+        ? `${color.skuBase}-${item.size}`
+        : `${product.id}::${color.name}::${item.size}`;
+
+      lineItems.push({
+        productId: product.id,
+        productName: product.name,
+        sku,
+        color: color.name,
+        size: item.size,
+        quantity: item.quantity,
+        unitPrice: product.price,
+        image: color.image || product.thumbnail
+      });
+    }
+
+    const metadataItems: Record<string, string> = {};
+    for (const [index, item] of lineItems.entries()) {
+      const serializedItem = JSON.stringify(item);
+      if (serializedItem.length > STRIPE_METADATA_VALUE_MAX_LENGTH) {
+        return NextResponse.json(
+          { error: `Order details for ${item.productName} exceed Stripe metadata limits.` },
+          { status: 400 }
+        );
+      }
+      metadataItems[`item_${index}`] = serializedItem;
+    }
+
+    const subtotal = lineItems.reduce(
+      (total, item) => total + item.unitPrice * item.quantity,
+      0
+    );
     const amount = Math.round((subtotal + ESTIMATED_SHIPPING) * 100);
-    const serializedItems = JSON.stringify(body.items);
     const connectedAccountId = getStripeConnectedAccountId();
 
     const paymentIntent = await stripe.paymentIntents.create({
@@ -66,9 +151,10 @@ export async function POST(request: Request) {
       receipt_email: body.customerEmail,
       metadata: {
         channel: "launch-store",
-        items: serializedItems,
+        itemCount: String(lineItems.length),
         customerEmail: body.customerEmail,
-        connectedAccountId: connectedAccountId ?? "platform"
+        connectedAccountId: connectedAccountId ?? "platform",
+        ...metadataItems
       },
       ...getStripeConnectPaymentIntentParams(),
       shipping: body.shippingAddress

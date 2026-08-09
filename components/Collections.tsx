@@ -11,11 +11,11 @@ export default async function Collections() {
       <div className="section-shell">
         <div className="mb-14 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-2xl">
-            <span className="eyebrow">New Drops</span>
+            <span className="eyebrow">The Original</span>
             <h2 className="section-heading">The Collection</h2>
             <p className="mt-5 body-copy max-w-xl">
-              The Runner Gang Signature tee in four colorways. Pick your color
-              - born in the streets, worn across the world.
+              The RG Classic T-Shirt in five launch colorways. The original Runner
+              Gang signature piece, made to order in limited production batches.
             </p>
           </div>
           <Link

@@ -10,14 +10,6 @@ import {
 
 export const runtime = "nodejs";
 
-type SerializedItem = {
-  variant_id: string | number;
-  quantity: number;
-  name: string;
-  price: number;
-  catalogSource?: "launch";
-};
-
 export async function POST(request: Request) {
   const stripe = getStripeClient();
   const signature = request.headers.get("stripe-signature");
@@ -43,18 +35,11 @@ export async function POST(request: Request) {
 
   if (event.type === "payment_intent.succeeded") {
     const paymentIntent = event.data.object as Stripe.PaymentIntent;
-    let items: SerializedItem[] = [];
-
-    try {
-      items = JSON.parse(paymentIntent.metadata.items ?? "[]") as SerializedItem[];
-    } catch {
-      items = [];
-    }
 
     console.log("Stripe payment succeeded", {
       paymentIntentId: paymentIntent.id,
       customerEmail: paymentIntent.metadata.customerEmail || null,
-      itemCount: items.length,
+      itemCount: paymentIntent.metadata.itemCount || "unknown",
       channel: paymentIntent.metadata.channel || "unknown",
       connectedAccountId: paymentIntent.metadata.connectedAccountId || null
     });
@@ -62,13 +47,17 @@ export async function POST(request: Request) {
     try {
       await recordLaunchOrder(paymentIntent);
     } catch (error) {
-      console.error("Failed to store launch order", error);
+      console.error("Critical launch order persistence failure; Stripe should retry", error);
+      return NextResponse.json(
+        { error: "Unable to persist paid launch order." },
+        { status: 500 }
+      );
     }
 
     try {
       await sendLaunchOrderConfirmationEmail(paymentIntent);
     } catch (error) {
-      console.error("Failed to send order email", error);
+      console.error("Launch order persisted, but confirmation email failed", error);
     }
   }
 
@@ -85,13 +74,17 @@ export async function POST(request: Request) {
     try {
       await recordSupplyOrder(session);
     } catch (error) {
-      console.error("Failed to store supply order", error);
+      console.error("Critical supply order persistence failure; Stripe should retry", error);
+      return NextResponse.json(
+        { error: "Unable to persist paid supply order." },
+        { status: 500 }
+      );
     }
 
     try {
       await sendSupplyOrderConfirmationEmail(session);
     } catch (error) {
-      console.error("Failed to send supply order email", error);
+      console.error("Supply order persisted, but confirmation email failed", error);
     }
   }
 

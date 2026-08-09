@@ -4,6 +4,7 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import Link from "next/link";
 import { useRef } from "react";
 import { LAUNCH_PRODUCTS } from "@/lib/products";
+import { formatCurrency } from "@/lib/storefront";
 import SmartProductImage from "./SmartProductImage";
 
 export default function TshirtShowcase() {
@@ -16,7 +17,7 @@ export default function TshirtShowcase() {
   const leftY = useTransform(scrollYProgress, [0, 1], [60, -80]);
   const rightY = useTransform(scrollYProgress, [0, 1], [-40, 100]);
 
-  const signature = LAUNCH_PRODUCTS[0];
+  const classic = LAUNCH_PRODUCTS[0];
 
   return (
     <section ref={ref} className="relative bg-obsidian">
@@ -24,7 +25,7 @@ export default function TshirtShowcase() {
       <div className="section-shell relative">
         <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
           <div className="hidden grid-cols-2 gap-6 md:grid">
-            {signature.colors.map((color, index) => (
+            {classic.colors.map((color, index) => (
               <motion.div
                 key={color.name}
                 style={{ y: index % 2 === 0 ? leftY : rightY }}
@@ -33,11 +34,11 @@ export default function TshirtShowcase() {
                 <div className="relative aspect-[3/4]">
                   <SmartProductImage
                     src={color.image}
-                    alt={`${signature.name} — ${color.name}`}
+                    alt={`${classic.name} — ${color.name}`}
                     colorName={color.name}
                     colorHex={color.hex}
-                    design={signature.design}
-                    productName={signature.name}
+                    design={classic.design}
+                    productName={classic.name}
                     sizes="(max-width: 1024px) 50vw, 25vw"
                     className="object-cover"
                   />
@@ -47,18 +48,18 @@ export default function TshirtShowcase() {
           </div>
 
           <div className="grid gap-6 md:hidden">
-            {signature.colors.map((color) => (
+            {classic.colors.map((color) => (
               <div
                 key={color.name}
                 className="relative aspect-[3/4] overflow-hidden border border-bone/10 bg-smoke"
               >
                 <SmartProductImage
                   src={color.image}
-                  alt={`${signature.name} — ${color.name}`}
+                  alt={`${classic.name} — ${color.name}`}
                   colorName={color.name}
                   colorHex={color.hex}
-                  design={signature.design}
-                  productName={signature.name}
+                  design={classic.design}
+                  productName={classic.name}
                   sizes="100vw"
                   className="object-cover"
                 />
@@ -67,14 +68,19 @@ export default function TshirtShowcase() {
           </div>
 
           <div>
-            <span className="eyebrow">The Signature Tee</span>
+            <span className="eyebrow">The Original</span>
             <h2 className="font-display text-5xl uppercase leading-[0.95] tracking-[0.10em] text-bone sm:text-6xl">
-              One tee. Four colorways. One culture.
+              RG Classic T-Shirt
             </h2>
             <p className="mt-6 body-copy max-w-xl">
-              The Runner Gang Signature t-shirt carries the classic script logo
-              in four print colorways. Available in S, M, L, and XL for $24.99
-              plus shipping and handling.
+              The original Runner Gang signature piece. Built around the classic
+              Runner Gang script and EST. 2025 mark, the RG Classic represents
+              where the lifestyle started—clean, direct and built to move.
+            </p>
+            <p className="mt-4 body-copy max-w-xl">
+              A versatile everyday tee designed to stand on its own or anchor a
+              complete Runner Gang fit. Available in S–3XL for {formatCurrency(classic.price)}
+              plus shipping. Made to order in limited production batches.
             </p>
 
             <div className="mt-8">
@@ -82,7 +88,7 @@ export default function TshirtShowcase() {
                 Colorways
               </p>
               <ul className="flex flex-wrap items-end gap-5">
-                {signature.colors.map((color) => (
+                {classic.colors.map((color) => (
                   <li key={color.name} className="flex flex-col items-center gap-2">
                     <span
                       style={{ backgroundColor: color.hex }}
@@ -99,10 +105,10 @@ export default function TshirtShowcase() {
 
             <div className="mt-10">
               <Link
-                href={`/products/${signature.id}`}
+                href={`/products/${classic.id}`}
                 className="luxury-button border-ember bg-ember text-bone hover:border-sunset hover:bg-sunset"
               >
-                Shop the Signature Tee
+                Shop RG Classic
               </Link>
             </div>
           </div>

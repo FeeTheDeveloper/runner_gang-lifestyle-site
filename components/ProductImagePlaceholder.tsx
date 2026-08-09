@@ -100,7 +100,7 @@ export default function ProductImagePlaceholder({
             fill="#F0EBE3"
             opacity="0.55"
           >
-            ESTD 2026
+            ESTD 2025
           </text>
         </g>
       </svg>

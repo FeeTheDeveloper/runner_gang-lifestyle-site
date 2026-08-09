@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 
 const ticker =
-  "RUNNER GANG LIFESTYLE / MODERN CLOTHING / EST. 2026 / URBAN LUXURY / BORN IN THE STREETS / REFINED FOR THE CULTURE / LIMITED DROPS / ";
+  "RUNNER GANG LIFESTYLE / MODERN CLOTHING / EST. 2025 / URBAN LUXURY / BORN IN THE STREETS / REFINED FOR THE CULTURE / LIMITED DROPS / ";
 
 export default function MarqueeStrip() {
   return (
@@ -28,4 +28,3 @@ export default function MarqueeStrip() {
     </section>
   );
 }
-

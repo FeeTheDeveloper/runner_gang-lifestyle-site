@@ -5,11 +5,12 @@ import { ESTIMATED_SHIPPING } from "@/lib/storefront";
 
 export type CartItem = {
   variant_id: string;
-  product_id: string;
-  name: string;
+  productId: string;
+  productName: string;
   size: string;
   color: string;
-  price: number;
+  sku: string;
+  unitPrice: number;
   quantity: number;
   image: string;
   catalogSource?: "launch";
@@ -48,7 +49,7 @@ type CartContextValue = {
   closeCheckout: () => void;
 };
 
-const STORAGE_KEY = "runner-gang-lifestyle-cart";
+const STORAGE_KEY = "runner-gang-lifestyle-cart-v2";
 
 const CartContext = createContext<CartContextValue | null>(null);
 
@@ -150,7 +151,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state.items));
   }, [isHydrated, state.items]);
 
-  const subtotal = state.items.reduce((total, item) => total + item.price * item.quantity, 0);
+  const subtotal = state.items.reduce(
+    (total, item) => total + item.unitPrice * item.quantity,
+    0
+  );
   const itemCount = state.items.reduce((total, item) => total + item.quantity, 0);
 
   function addItem(item: CartItem) {
