@@ -14,7 +14,7 @@ export default async function Collections() {
             <span className="eyebrow">The Original</span>
             <h2 className="section-heading">The Collection</h2>
             <p className="mt-5 body-copy max-w-xl">
-              The RG Classic T-Shirt in five launch colorways. The original Runner
+              The RG Classic T-Shirt in four launch colorways. The original Runner
               Gang signature piece, made to order in limited production batches.
             </p>
           </div>
