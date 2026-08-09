@@ -3,9 +3,9 @@
 import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
 import { Minus, Plus, ShoppingBag, X } from "lucide-react";
-import { useEffect } from "react";
 import { useCart } from "@/context/CartContext";
 import { formatCurrency } from "@/lib/storefront";
+import { useBodyScrollLock } from "@/lib/useBodyScrollLock";
 
 export default function CartDrawer() {
   const {
@@ -19,18 +19,7 @@ export default function CartDrawer() {
     removeItem,
     updateQuantity
   } = useCart();
-  useEffect(() => {
-    if (!isOpen) {
-      return;
-    }
-
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-
-    return () => {
-      document.body.style.overflow = previousOverflow;
-    };
-  }, [isOpen]);
+  useBodyScrollLock(isOpen);
 
   return (
     <AnimatePresence>
@@ -86,7 +75,7 @@ export default function CartDrawer() {
               </div>
             ) : (
               <>
-                <div className="flex-1 overflow-y-auto px-6 py-6">
+                <div className="flex-1 overflow-y-auto overscroll-contain px-6 py-6">
                   <div className="space-y-4">
                     {items.map((item) => (
                       <article

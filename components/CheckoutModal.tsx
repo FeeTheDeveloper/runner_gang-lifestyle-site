@@ -13,6 +13,7 @@ import { useEffect, useState } from "react";
 import { useCart } from "@/context/CartContext";
 import { stripePromise } from "@/lib/stripe-client";
 import { formatCurrency } from "@/lib/storefront";
+import { useBodyScrollLock } from "@/lib/useBodyScrollLock";
 
 type ShippingFormState = {
   fullName: string;
@@ -276,16 +277,10 @@ export default function CheckoutModal() {
       setErrors({});
       setClientSecret(null);
       setCheckoutError(null);
-      return;
     }
-
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-
-    return () => {
-      document.body.style.overflow = previousOverflow;
-    };
   }, [isCheckoutOpen]);
+
+  useBodyScrollLock(isCheckoutOpen);
 
   function updateField(field: keyof ShippingFormState, value: string) {
     setFormState((current) => ({
