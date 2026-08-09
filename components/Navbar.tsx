@@ -2,10 +2,11 @@
 
 import BrandMark from "@/components/BrandMark";
 import { useCart } from "@/context/CartContext";
+import { useBodyScrollLock } from "@/lib/useBodyScrollLock";
 import { AnimatePresence, motion, useMotionValueEvent, useScroll } from "framer-motion";
 import { Menu, ShoppingBag, X } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 const navLinks = [
   { label: "Home", href: "/" },
@@ -27,18 +28,7 @@ export default function Navbar() {
     setScrolled(latest > 40);
   });
 
-  useEffect(() => {
-    if (!mobileOpen) {
-      return;
-    }
-
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-
-    return () => {
-      document.body.style.overflow = previousOverflow;
-    };
-  }, [mobileOpen]);
+  useBodyScrollLock(mobileOpen);
 
   return (
     <>
@@ -121,7 +111,7 @@ export default function Navbar() {
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ duration: 0.38, ease: [0.22, 1, 0.36, 1] }}
-              className="fixed right-0 top-0 z-[60] flex h-full w-[84vw] max-w-sm flex-col border-l border-gold/20 bg-obsidian px-6 py-6 md:hidden"
+              className="fixed right-0 top-0 z-[60] flex h-full w-[84vw] max-w-sm flex-col overflow-y-auto overscroll-contain border-l border-gold/20 bg-obsidian px-6 py-6 md:hidden"
             >
               <div className="mb-12 flex items-start justify-between gap-4">
                 <div className="max-w-[220px]">
